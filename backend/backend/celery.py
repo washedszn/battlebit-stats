@@ -18,7 +18,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 from datetime import timedelta
-from celery.schedules import crontab
 
 app.conf.beat_schedule = {
     'fetch-and-store-data-every-5-minutes': {
