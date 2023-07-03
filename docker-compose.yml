@@ -10,6 +10,9 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
+  redis:
+    image: "redis:alpine"
+
   backend:
     build: ./backend
     command: >
@@ -22,8 +25,9 @@ services:
       - 8000:8000
     depends_on:
       - db
+      - redis
     env_file:
-      - .env
+      - ./backend/.env
 
   frontend:
     build: ./frontend
@@ -34,6 +38,46 @@ services:
       - 4200:4200
     depends_on:
       - backend
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+  celery-worker:
+    build: ./backend
+    command: celery -A backend worker -l info -E
+    volumes:
+      - ./backend:/code
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+
+  celery-beat:
+    build: ./backend
+    command: celery -A backend beat -l info
+    volumes:
+      - ./backend:/code
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+
+  flower:
+    build: ./backend
+    command: celery -A backend flower --broker=redis://redis:6379/0
+    ports:
+      - 5555:5555
+    depends_on:
+      - celery-worker
+      - redis
+    env_file:
+      - ./backend/.env
 
 volumes:
   postgres_data:

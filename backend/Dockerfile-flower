@@ -1,0 +1,22 @@
+# Dockerfile-flower
+FROM python:3.8
+
+WORKDIR /code
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apt-get update \
+    && apt-get install -y postgresql gcc python3-dev musl-dev
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt /code/
+RUN pip install -r requirements.txt
+
+# install Flower
+RUN pip install flower
+
+COPY . /code/

@@ -33,6 +33,7 @@ This is a web application to display statistics for the game BattleBit Remastere
     POSTGRES_USER=your_user
     POSTGRES_PASSWORD=your_password
     DJANGO_SECRET_KEY=your_secret_key
+    CELERY_RESULT_BACKEND='db+postgresql://your_user:your_password@localhost/your_database'
     ```
     
     Please replace `your_database`, `your_user`, `your_password`, and `your_secret_key` with the appropriate values for your setup.
