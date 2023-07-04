@@ -1,10 +1,7 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-from battlebit.views import ServerStatisticsViewSet
-
-router = DefaultRouter()
-router.register(r'serverstatistics', ServerStatisticsViewSet)
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('admin/', admin.site.urls),
+    path('api/battlebit/', include('battlebit.urls')),  # includes the URLs of the 'battlebit' app
 ]
