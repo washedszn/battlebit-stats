@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils import timezone
 
@@ -9,13 +10,13 @@ PERIOD_CHOICES = [
 
 class ServerStatistics(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
+    batch_id = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100, default='N/A')
     map = models.CharField(max_length=50, default='N/A')
     map_size = models.CharField(max_length=50, default='N/A')
     game_mode = models.CharField(max_length=50, default='N/A')
     region = models.CharField(max_length=100, default='N/A')
     players = models.IntegerField(default=0)
-    total_players = models.IntegerField(default=0)
     queue_players = models.IntegerField(default=0)
     max_players = models.IntegerField(default=0)
     hz = models.IntegerField(default=0)
@@ -29,7 +30,7 @@ class ServerStatistics(models.Model):
         ordering = ['-created_at']
         verbose_name = "Server Statistic"
         verbose_name_plural = "Server Statistics"
-        indexes = [models.Index(fields=['name', 'created_at'], name='name_date_idx'), ]
+        indexes = [models.Index(fields=['name', 'created_at', 'batch_id'], name='name_date_batch_idx'), ]
 
     def __str__(self):
         return self.name
@@ -56,7 +57,7 @@ class TimeStatistics(models.Model):
 class ServerAggStatistics(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    server_name = models.CharField(max_length=100, default='N/A', primary_key=True)
+    server_name = models.CharField(max_length=100, default='N/A')
     total_average_players = models.FloatField(default=0.0)
     most_used_map = models.CharField(max_length=50, default='N/A')
     most_used_game_mode = models.CharField(max_length=50, default='N/A')
@@ -67,7 +68,6 @@ class ServerAggStatistics(models.Model):
     class Meta:
         verbose_name = "Server Aggregate Statistic"
         verbose_name_plural = "Server Aggregate Statistics"
-        indexes = [models.Index(fields=['server_name'], name='server_name_idx'), ]
 
     def __str__(self):
         return self.server_name
@@ -76,7 +76,7 @@ class ServerAggStatistics(models.Model):
 class MapAggStatistics(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    map_name = models.CharField(max_length=50, default='N/A', primary_key=True)
+    map_name = models.CharField(max_length=50, default='N/A')
     total_average_players = models.FloatField(default=0.0)
     most_used_game_mode = models.CharField(max_length=50, default='N/A')
     most_used_region = models.CharField(max_length=100, default='N/A')
@@ -85,7 +85,6 @@ class MapAggStatistics(models.Model):
     class Meta:
         verbose_name = "Map Aggregate Statistic"
         verbose_name_plural = "Map Aggregate Statistics"
-        indexes = [models.Index(fields=['map_name'], name='map_name_idx'), ]
 
     def __str__(self):
         return self.map_name
@@ -94,7 +93,7 @@ class MapAggStatistics(models.Model):
 class GameModeAggStatistics(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    game_mode_name = models.CharField(max_length=50, default='N/A', primary_key=True)
+    game_mode_name = models.CharField(max_length=50, default='N/A')
     total_average_players = models.FloatField(default=0.0)
     most_used_map = models.CharField(max_length=50, default='N/A')
     most_used_region = models.CharField(max_length=100, default='N/A')
@@ -103,7 +102,6 @@ class GameModeAggStatistics(models.Model):
     class Meta:
         verbose_name = "Game Mode Aggregate Statistic"
         verbose_name_plural = "Game Mode Aggregate Statistics"
-        indexes = [models.Index(fields=['game_mode_name'], name='game_mode_name_idx'), ]
 
     def __str__(self):
         return self.game_mode_name
@@ -112,7 +110,7 @@ class GameModeAggStatistics(models.Model):
 class RegionAggStatistics(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    region_name = models.CharField(max_length=100, default='N/A', primary_key=True)
+    region_name = models.CharField(max_length=100, default='N/A')
     total_average_players = models.FloatField(default=0.0)
     most_used_map = models.CharField(max_length=50, default='N/A')
     most_used_game_mode = models.CharField(max_length=50, default='N/A')
@@ -121,7 +119,6 @@ class RegionAggStatistics(models.Model):
     class Meta:
         verbose_name = "Region Aggregate Statistic"
         verbose_name_plural = "Region Aggregate Statistics"
-        indexes = [models.Index(fields=['region_name'], name='region_name_idx'), ]
 
     def __str__(self):
         return self.region_name
