@@ -1,37 +1,42 @@
 from rest_framework import serializers
-from .models import DayNightAggStatistics, MapSizeAggStatistics, ServerStatistics, TimeStatistics, GameModeAggStatistics, MapAggStatistics, RegionAggStatistics
+from .models import AggregatedServerStatistics, DayNightStatistics, MapStatistics, RegionStatistics, ServerStatistics, MapSizeStatistics, GameModeStatistics
 
 class ServerStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServerStatistics
         fields = '__all__'
 
-class TimeStatisticsSerializer(serializers.ModelSerializer):
+class MapStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TimeStatistics
+        model = MapStatistics
         fields = '__all__'
 
-class GameModeAggStatisticsSerializer(serializers.ModelSerializer):
+
+class MapSizeStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GameModeAggStatistics
+        model = MapSizeStatistics
         fields = '__all__'
 
-class MapAggStatisticsSerializer(serializers.ModelSerializer):
+
+class GameModeStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MapAggStatistics
+        model = GameModeStatistics
         fields = '__all__'
 
-class RegionAggStatisticsSerializer(serializers.ModelSerializer):
+
+class RegionStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RegionAggStatistics
-        fields = '__all__'
-     
-class MapSizeAggStatisticsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MapSizeAggStatistics
+        model = RegionStatistics
         fields = '__all__'
 
-class DayNightAggStatisticsSerializer(serializers.ModelSerializer):
+
+class DayNightStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DayNightAggStatistics
-        fields = '__all__'   
+        model = DayNightStatistics
+        fields = '__all__'
+
+
+class AggregatedServerStatisticsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AggregatedServerStatistics
+        fields = '__all__'

@@ -2,12 +2,6 @@ import uuid
 from django.db import models
 from django.utils import timezone
 
-PERIOD_CHOICES = [
-    ('last_hour', 'Last Hour'),
-    ('last_day', 'Last Day'),
-    ('last_7_days', 'Last 7 Days'),
-]
-
 class ServerStatistics(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     batch_id = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -35,112 +29,88 @@ class ServerStatistics(models.Model):
     def __str__(self):
         return self.name
 
+class AggregatedServerStatistics(models.Model):
+    # Assuming each aggregation is based on a unique batch and timestamp
+    batch_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
-class TimeStatistics(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    total_average_players = models.FloatField(default=0.0)
-    most_used_map = models.CharField(max_length=50, default='N/A')
-    most_used_game_mode = models.CharField(max_length=50, default='N/A')
-    most_used_region = models.CharField(max_length=100, default='N/A')
+    # Fields for overall statistics
+    total_players = models.IntegerField(default=0)
+    total_maps = models.IntegerField(default=0)
+    total_regions = models.IntegerField(default=0)
+    total_map_sizes = models.IntegerField(default=0)
 
-    class Meta:
-        ordering = ['-timestamp']
-        verbose_name = "Time Statistic"
-        verbose_name_plural = "Time Statistics"
-        indexes = [models.Index(fields=['timestamp'], name='timestamp_idx'), ]
+    # Fields for map statistics
+    most_used_map = models.CharField(max_length=100)
+    most_used_map_count = models.IntegerField(default=0)
+    most_used_map_total_players = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f'{self.get_period_display()} at {self.timestamp}'
+    least_used_map = models.CharField(max_length=100)
+    least_used_map_count = models.IntegerField(default=0)
+    least_used_map_total_players = models.IntegerField(default=0)
 
-class MapAggStatistics(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    map_name = models.CharField(max_length=50, default='N/A')
-    total_average_players = models.FloatField(default=0.0)
-    most_used_map_size = models.CharField(max_length=50, default='N/A')
-    most_used_day_night = models.CharField(max_length=20, default='N/A')
-    most_used_game_mode = models.CharField(max_length=50, default='N/A')
-    most_used_region = models.CharField(max_length=100, default='N/A')
-    most_used_server = models.CharField(max_length=100, default='N/A')
+    # Fields for map_size statistics
+    most_used_map_size = models.CharField(max_length=100)
+    most_used_map_size_count = models.IntegerField(default=0)
+    most_used_map_size_total_players = models.IntegerField(default=0)
 
-    class Meta:
-        verbose_name = "Map Aggregate Statistic"
-        verbose_name_plural = "Map Aggregate Statistics"
+    least_used_map_size = models.CharField(max_length=100)
+    least_used_map_size_count = models.IntegerField(default=0)
+    least_used_map_size_total_players = models.IntegerField(default=0)
 
-    def __str__(self):
-        return self.map_name
+    # Fields for game_mode statistics
+    most_used_game_mode = models.CharField(max_length=100)
+    most_used_game_mode_count = models.IntegerField(default=0)
+    most_used_game_mode_total_players = models.IntegerField(default=0)
 
-class GameModeAggStatistics(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    game_mode_name = models.CharField(max_length=50, default='N/A')
-    total_average_players = models.FloatField(default=0.0)
-    most_used_map_size = models.CharField(max_length=50, default='N/A')
-    most_used_day_night = models.CharField(max_length=20, default='N/A')
-    most_used_map = models.CharField(max_length=50, default='N/A')
-    most_used_region = models.CharField(max_length=100, default='N/A')
-    most_used_server = models.CharField(max_length=100, default='N/A')
+    least_used_game_mode = models.CharField(max_length=100)
+    least_used_game_mode_count = models.IntegerField(default=0)
+    least_used_game_mode_total_players = models.IntegerField(default=0)
 
-    class Meta:
-        verbose_name = "Game Mode Aggregate Statistic"
-        verbose_name_plural = "Game Mode Aggregate Statistics"
+    # Fields for region statistics
+    most_used_region = models.CharField(max_length=100)
+    most_used_region_count = models.IntegerField(default=0)
+    most_used_region_total_players = models.IntegerField(default=0)
 
-    def __str__(self):
-        return self.game_mode_name
+    least_used_region = models.CharField(max_length=100)
+    least_used_region_count = models.IntegerField(default=0)
+    least_used_region_total_players = models.IntegerField(default=0)
 
+    # Fields for day_night statistics
+    most_common_time_of_day = models.CharField(max_length=50)
+    most_common_time_of_day_count = models.IntegerField(default=0)
+    most_common_time_of_day_total_players = models.IntegerField(default=0)
 
-class RegionAggStatistics(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    region_name = models.CharField(max_length=100, default='N/A')
-    total_average_players = models.FloatField(default=0.0)
-    most_used_map_size = models.CharField(max_length=50, default='N/A')
-    most_used_day_night = models.CharField(max_length=20, default='N/A')
-    most_used_map = models.CharField(max_length=50, default='N/A')
-    most_used_game_mode = models.CharField(max_length=50, default='N/A')
-    most_used_server = models.CharField(max_length=100, default='N/A')
+    least_common_time_of_day = models.CharField(max_length=50)
+    least_common_time_of_day_count = models.IntegerField(default=0)
+    least_common_time_of_day_total_players = models.IntegerField(default=0)
 
     class Meta:
-        verbose_name = "Region Aggregate Statistic"
-        verbose_name_plural = "Region Aggregate Statistics"
-
-    def __str__(self):
-        return self.region_name
-
-class MapSizeAggStatistics(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    map_size_name = models.CharField(max_length=50, default='N/A')
-    total_average_players = models.FloatField(default=0.0)
-    most_used_day_night = models.CharField(max_length=20, default='N/A')
-    most_used_map = models.CharField(max_length=50, default='N/A')
-    most_used_game_mode = models.CharField(max_length=50, default='N/A')
-    most_used_region = models.CharField(max_length=100, default='N/A')
-    most_used_server = models.CharField(max_length=100, default='N/A')
+        # Ensure uniqueness on period and timestamp
+        unique_together = ['batch_id', 'timestamp']
+    
+class BaseStatistics(models.Model):
+    batch_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=100)
+    total_players = models.IntegerField(default=0)
+    total_servers = models.IntegerField(default=0)
 
     class Meta:
-        verbose_name = "Map Size Aggregate Statistic"
-        verbose_name_plural = "Map Size Aggregate Statistics"
+        abstract = True
+        unique_together = ['batch_id', 'timestamp', 'name']
 
-    def __str__(self):
-        return self.map_size
+class RegionStatistics(BaseStatistics):
+    pass
 
+class MapStatistics(BaseStatistics):
+    pass
 
-class DayNightAggStatistics(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='last_day')
-    day_night_name = models.CharField(max_length=20, choices=[('Day', 'Day'), ('Night', 'Night')], default='Day')
-    total_average_players = models.FloatField(default=0.0)
-    most_used_map_size = models.CharField(max_length=50, default='N/A')
-    most_used_map = models.CharField(max_length=50, default='N/A')
-    most_used_game_mode = models.CharField(max_length=50, default='N/A')
-    most_used_region = models.CharField(max_length=100, default='N/A')
-    most_used_server = models.CharField(max_length=100, default='N/A')
+class MapSizeStatistics(BaseStatistics):
+    pass
 
-    class Meta:
-        verbose_name = "Day/Night Aggregate Statistic"
-        verbose_name_plural = "Day/Night Aggregate Statistics"
+class GameModeStatistics(BaseStatistics):
+    pass
 
-    def __str__(self):
-        return self.day_night
+class DayNightStatistics(BaseStatistics):
+    pass

@@ -1,17 +1,17 @@
 import requests
 import uuid
+from collections import Counter
 from backend.celery import app
-from django.db.models import CharField, Subquery, OuterRef, FloatField, Sum, Avg, Count
 from django.utils import timezone
 from datetime import timedelta
 from .models import (
     ServerStatistics,
-    TimeStatistics,
-    MapAggStatistics,
-    GameModeAggStatistics,
-    RegionAggStatistics,
-    MapSizeAggStatistics,
-    DayNightAggStatistics
+    AggregatedServerStatistics,
+    DayNightStatistics,
+    MapSizeStatistics,
+    MapStatistics,
+    GameModeStatistics,
+    RegionStatistics
 )
 
 @app.task
@@ -20,7 +20,6 @@ def fetch_and_store_data():
     response.raise_for_status()  
     data = response.json()
     
-    # calculate total players
     batch_id = uuid.uuid4()
     
     for item in data:
@@ -43,180 +42,148 @@ def fetch_and_store_data():
         )
         server_stats.save()
         
-    update_time_statistics.delay()
-    update_map_agg_statistics.delay()
-    update_game_mode_agg_statistics.delay()
-    update_region_agg_statistics.delay()
-    update_map_size_agg_statistics.delay()
-    update_day_night_agg_statistics.delay()
+    calculate_aggregates(batch_id)
         
     # Cleanup old data
     ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(days=7)).delete()
 
-def calculate_and_create_statistics(stats, period):
-    # Calculate the sum of players grouped by the batch_id
-    stats = stats.values('batch_id').annotate(total_players_batch=Sum('players'))
+@app.task
+def calculate_aggregates(batch_id):
+    stats = ServerStatistics.objects.filter(batch_id=batch_id)
 
-    # Calculate the average of sums
-    avg_players = stats.aggregate(Avg('total_players_batch'))['total_players_batch__avg']
+    # Initialize counters
+    map_counter = Counter()
+    map_size_counter = Counter()
+    game_mode_counter = Counter()
+    region_counter = Counter()
+    day_night_counter = Counter()
 
-    # Calculate the most used map, game_mode, and region
-    most_used_map = stats.values('map').annotate(count=Count('map')).order_by('-count').first()['map']
-    most_used_game_mode = stats.values('game_mode').annotate(count=Count('game_mode')).order_by('-count').first()['game_mode']
-    most_used_region = stats.values('region').annotate(count=Count('region')).order_by('-count').first()['region']
+    # Initialize player counters
+    map_players_counter = Counter()
+    map_size_players_counter = Counter()
+    game_mode_players_counter = Counter()
+    region_players_counter = Counter()
+    day_night_players_counter = Counter()
 
-    # Create the TimeStatistics object
-    time_stat = TimeStatistics(
-        period=period,
-        total_average_players=avg_players,
+    for stat in stats:
+        # Increase counters
+        map_counter[stat.map] += 1
+        map_size_counter[stat.map_size] += 1
+        game_mode_counter[stat.game_mode] += 1
+        region_counter[stat.region] += 1
+        day_night_counter[stat.day_night] += 1
+
+        # Increase player counters
+        map_players_counter[stat.map] += stat.players
+        map_size_players_counter[stat.map_size] += stat.players
+        game_mode_players_counter[stat.game_mode] += stat.players
+        region_players_counter[stat.region] += stat.players
+        day_night_players_counter[stat.day_night] += stat.players
+
+    # Create statistics instances
+    for map, server_count in map_counter.items():
+        MapStatistics.objects.create(
+            batch_id=batch_id,
+            name=map,
+            total_players=map_players_counter[map],
+            total_servers=server_count,
+        )
+
+    for map_size, server_count in map_size_counter.items():
+        MapSizeStatistics.objects.create(
+            batch_id=batch_id,
+            name=map_size,
+            total_players=map_size_players_counter[map_size],
+            total_servers=server_count,
+        )
+
+    for game_mode, server_count in game_mode_counter.items():
+        GameModeStatistics.objects.create(
+            batch_id=batch_id,
+            name=game_mode,
+            total_players=game_mode_players_counter[game_mode],
+            total_servers=server_count,
+        )
+
+    for region, server_count in region_counter.items():
+        RegionStatistics.objects.create(
+            batch_id=batch_id,
+            name=region,
+            total_players=region_players_counter[region],
+            total_servers=server_count,
+        )
+
+    for day_night, server_count in day_night_counter.items():
+        DayNightStatistics.objects.create(
+            batch_id=batch_id,
+            name=day_night,
+            total_players=day_night_players_counter[day_night],
+            total_servers=server_count,
+        )
+    
+    # Find the most and least common for each counter
+    most_used_map, most_used_map_count = map_counter.most_common(1)[0]
+    least_used_map, least_used_map_count = map_counter.most_common()[-1]
+    
+    most_used_map_size, most_used_map_size_count = map_size_counter.most_common(1)[0]
+    least_used_map_size, least_used_map_size_count = map_size_counter.most_common()[-1]
+    
+    most_used_game_mode, most_used_game_mode_count = game_mode_counter.most_common(1)[0]
+    least_used_game_mode, least_used_game_mode_count = game_mode_counter.most_common()[-1]
+    
+    most_used_region, most_used_region_count = region_counter.most_common(1)[0]
+    least_used_region, least_used_region_count = region_counter.most_common()[-1]
+    
+    most_common_time_of_day, most_common_time_of_day_count = day_night_counter.most_common(1)[0]
+    least_common_time_of_day, least_common_time_of_day_count = day_night_counter.most_common()[-1]
+    
+    # Create the aggregate statistics object
+    agg_stats = AggregatedServerStatistics(
+        batch_id=batch_id,
+        
+        total_players=sum(map_players_counter.values()),
+        total_maps=len(map_counter),
+        total_regions=len(region_counter),
+        total_map_sizes=len(map_size_counter),
+        
         most_used_map=most_used_map,
+        most_used_map_count=most_used_map_count,
+        most_used_map_total_players=map_players_counter[most_used_map],
+        
+        least_used_map=least_used_map,
+        least_used_map_count=least_used_map_count,
+        least_used_map_total_players=map_players_counter[least_used_map],
+        
+        most_used_map_size=most_used_map_size,
+        most_used_map_size_count=most_used_map_size_count,
+        most_used_map_size_total_players=map_size_players_counter[most_used_map_size],
+        
+        least_used_map_size=least_used_map_size,
+        least_used_map_size_count=least_used_map_size_count,
+        least_used_map_size_total_players=map_size_players_counter[least_used_map_size],
+        
         most_used_game_mode=most_used_game_mode,
+        most_used_game_mode_count=most_used_game_mode_count,
+        most_used_game_mode_total_players=game_mode_players_counter[most_used_game_mode],
+        
+        least_used_game_mode=least_used_game_mode,
+        least_used_game_mode_count=least_used_game_mode_count,
+        least_used_game_mode_total_players=game_mode_players_counter[least_used_game_mode],
+        
         most_used_region=most_used_region,
+        most_used_region_count=most_used_region_count,
+        most_used_region_total_players=region_players_counter[most_used_region],
+        
+        least_used_region=least_used_region,
+        least_used_region_count=least_used_region_count,
+        least_used_region_total_players=region_players_counter[least_used_region],
+        
+        most_common_time_of_day=most_common_time_of_day,
+        most_common_time_of_day_count=most_common_time_of_day_count,
+        most_common_time_of_day_total_players=day_night_players_counter[most_common_time_of_day],
+        
+        least_common_time_of_day=least_common_time_of_day,
+        least_common_time_of_day_count=least_common_time_of_day_count,
+        least_common_time_of_day_total_players=day_night_players_counter[least_common_time_of_day],
     )
-    time_stat.save()
-
-
-@app.task
-def update_time_statistics():
-    # Get statistics for the last hour, day, and 7 days
-    last_hour_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(hours=1))
-    last_day_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=1))
-    last_7_days_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
-
-    # Calculate and create TimeStatistics objects
-    calculate_and_create_statistics(last_hour_stats, "last_hour")
-    calculate_and_create_statistics(last_day_stats, "last_day")
-    calculate_and_create_statistics(last_7_days_stats, "last_7_days")
-
-def calculate_and_create_agg_statistics(stats, agg_model, group_by_field, primary_key_field, period):
-    # Aggregate all servers based on the group_by_field and batch_id
-    sum_subquery = stats.filter(
-        batch_id=OuterRef('batch_id'),
-        **{group_by_field: OuterRef(group_by_field)}
-    ).values('batch_id', group_by_field).annotate(
-        total_players_per_batch=Sum('players')
-    ).values('total_players_per_batch')
-
-    # Calculate average total players and most used game mode, region and server for each group
-    group_totals = stats.values('batch_id', group_by_field).annotate(
-        total_average_players=Avg(
-            Subquery(sum_subquery, output_field=FloatField()),
-            output_field=FloatField()
-        ),
-        most_used_game_mode=Subquery(
-            stats.filter(**{group_by_field: OuterRef(group_by_field)}).values('game_mode').annotate(
-                count=Count('game_mode')
-            ).order_by('-count').values('game_mode')[:1],
-            output_field=CharField()
-        ),
-        most_used_region=Subquery(
-            stats.filter(**{group_by_field: OuterRef(group_by_field)}).values('region').annotate(
-                count=Count('region')
-            ).order_by('-count').values('region')[:1],
-            output_field=CharField()
-        ),
-        most_used_server=Subquery(
-            stats.filter(**{group_by_field: OuterRef(group_by_field)}).values('name').annotate(
-                count=Count('name')
-            ).order_by('-count').values('name')[:1],
-            output_field=CharField()
-        ),
-        most_used_map=Subquery(
-            stats.filter(**{group_by_field: OuterRef(group_by_field)}).values('name').annotate(
-                count=Count('map')
-            ).order_by('-count').values('map')[:1],
-            output_field=CharField()
-        ),
-        most_used_map_size=Subquery(
-            stats.filter(**{group_by_field: OuterRef(group_by_field)}).values('name').annotate(
-                count=Count('map_size')
-            ).order_by('-count').values('map_size')[:1],
-            output_field=CharField()
-        ),
-        most_used_day_night=Subquery(
-            stats.filter(**{group_by_field: OuterRef(group_by_field)}).values('name').annotate(
-                count=Count('day_night')
-            ).order_by('-count').values('day_night')[:1],
-            output_field=CharField()
-        ),
-        most_used=Count(group_by_field)
-    ).order_by('-most_used')
-
-    # Determine the fields in the agg_model
-    fields_in_agg_model = [field.name for field in agg_model._meta.get_fields()]
-
-    # Create a new record in the Aggregate table
-    for stat in group_totals:
-        creation_dict = {
-            primary_key_field: stat[group_by_field],
-            'period': period,
-            'total_average_players': stat['total_average_players'],
-            'timestamp': timezone.now(),    
-        }
-
-        # Add most used fields if they exist in the model
-        for field in ['most_used_game_mode', 'most_used_region', 'most_used_server', 'most_used_map', 'most_used_map_size', 'most_used_day_night']:
-            if field in fields_in_agg_model:
-                creation_dict[field] = stat[field]
-
-        agg_model.objects.create(**creation_dict)
-
-@app.task
-def update_map_agg_statistics():
-    # Get statistics for the last hour, day, and 7 days
-    last_hour_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(hours=1))
-    last_day_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=1))
-    last_7_days_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
-
-    # Calculate and create Aggregate Statistics objects
-    calculate_and_create_agg_statistics(last_hour_stats, MapAggStatistics, 'map', 'map_name', 'last_hour')
-    calculate_and_create_agg_statistics(last_day_stats, MapAggStatistics, 'map', 'map_name', 'last_day')
-    calculate_and_create_agg_statistics(last_7_days_stats, MapAggStatistics, 'map', 'map_name', 'last_7_days')
-
-@app.task
-def update_game_mode_agg_statistics():
-    # Get statistics for the last hour, day, and 7 days
-    last_hour_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(hours=1))
-    last_day_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=1))
-    last_7_days_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
-
-    # Calculate and create Aggregate Statistics objects
-    calculate_and_create_agg_statistics(last_hour_stats, GameModeAggStatistics, 'game_mode', 'game_mode_name', 'last_hour')
-    calculate_and_create_agg_statistics(last_day_stats, GameModeAggStatistics, 'game_mode', 'game_mode_name', 'last_day')
-    calculate_and_create_agg_statistics(last_7_days_stats, GameModeAggStatistics, 'game_mode', 'game_mode_name', 'last_7_days')
-
-@app.task
-def update_region_agg_statistics():
-    # Get statistics for the last hour, day, and 7 days
-    last_hour_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(hours=1))
-    last_day_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=1))
-    last_7_days_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
-
-    # Calculate and create Aggregate Statistics objects
-    calculate_and_create_agg_statistics(last_hour_stats, RegionAggStatistics, 'region', 'region_name', 'last_hour')
-    calculate_and_create_agg_statistics(last_day_stats, RegionAggStatistics, 'region', 'region_name', 'last_day')
-    calculate_and_create_agg_statistics(last_7_days_stats, RegionAggStatistics, 'region', 'region_name', 'last_7_days')
-
-@app.task
-def update_map_size_agg_statistics():
-    # Get statistics for the last hour, day, and 7 days
-    last_hour_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(hours=1))
-    last_day_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=1))
-    last_7_days_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
-
-    # Calculate and create Aggregate Statistics objects
-    calculate_and_create_agg_statistics(last_hour_stats, MapSizeAggStatistics, 'map_size', 'map_size_name', 'last_hour')
-    calculate_and_create_agg_statistics(last_day_stats, MapSizeAggStatistics, 'map_size', 'map_size_name', 'last_day')
-    calculate_and_create_agg_statistics(last_7_days_stats, MapSizeAggStatistics, 'map_size', 'map_size_name', 'last_7_days')
-
-@app.task
-def update_day_night_agg_statistics():
-    # Get statistics for the last hour, day, and 7 days
-    last_hour_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(hours=1))
-    last_day_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=1))
-    last_7_days_stats = ServerStatistics.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
-
-    # Calculate and create Aggregate Statistics objects
-    calculate_and_create_agg_statistics(last_hour_stats, DayNightAggStatistics, 'day_night', 'day_night_name', 'last_hour')
-    calculate_and_create_agg_statistics(last_day_stats, DayNightAggStatistics, 'day_night', 'day_night_name', 'last_day')
-    calculate_and_create_agg_statistics(last_7_days_stats, DayNightAggStatistics, 'day_night', 'day_night_name', 'last_7_days')
+    agg_stats.save()
