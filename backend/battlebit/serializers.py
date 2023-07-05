@@ -40,3 +40,7 @@ class AggregatedServerStatisticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AggregatedServerStatistics
         fields = '__all__'
+
+class TotalPlayersAndTimestampSerializer(serializers.Serializer):
+    timestamp = serializers.DateTimeField()
+    total_players = serializers.IntegerField()

@@ -1,0 +1,15 @@
+<div class="statistics-container" *ngIf="statistics">
+    <mat-card *ngFor="let stat of statistics">
+      <mat-card-header>
+        <mat-card-title>{{ stat.name }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Total Players: {{ stat.total_players }}</p>
+        <p>Total Servers: {{ stat.total_servers }}</p>
+      </mat-card-content>
+      <mat-card-footer>
+        <p>Timestamp: {{ stat.timestamp }}</p>
+      </mat-card-footer>
+    </mat-card>
+  </div>
+  
