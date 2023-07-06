@@ -44,15 +44,15 @@ def fetch_and_store_data():
         
     calculate_aggregates(batch_id)
         
-    # 7 days server stat cleanup
-    ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(days=7)).delete()
-    # 1 day aggregate cleanup
-    AggregatedServerStatistics.objects.filter(timestamp=timezone.now() - timedelta(days=1)).delete()
-    DayNightStatistics.objects.filter(timestamp=timezone.now() - timedelta(days=1)).delete()
-    MapSizeStatistics.objects.filter(timestamp=timezone.now() - timedelta(days=1)).delete()
-    MapStatistics.objects.filter(timestamp=timezone.now() - timedelta(days=1)).delete()
-    GameModeStatistics.objects.filter(timestamp=timezone.now() - timedelta(days=1)).delete()
-    RegionStatistics.objects.filter(timestamp=timezone.now() - timedelta(days=1)).delete()
+    # 1 hour server stat cleanup
+    ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(hours=1)).delete()
+    # 1 hour aggregate cleanup
+    AggregatedServerStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
+    DayNightStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
+    MapSizeStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
+    MapStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
+    GameModeStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
+    RegionStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
 
 @app.task
 def calculate_aggregates(batch_id):
