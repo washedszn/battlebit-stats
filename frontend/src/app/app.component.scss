@@ -1,0 +1,32 @@
+.app-container {
+    width: 100%;
+  }
+  
+  .content-container {
+    max-width: 1280px; // Adjust as needed
+    margin: 0 auto;
+  }
+  
+  .topbar {
+    width: 100%; // Set width to 100% to cover the parent's width
+    background-color: #1976d2; // Replace with your desired background color
+  }
+  
+  .topbar-content {
+    max-width: 1280px; // Adjust as needed
+    margin: 0 auto;
+    display: flex;
+  }
+  
+  .active-link {
+    background-color: #505050 !important;
+    border: 1px solid #c0c0c0 !important;
+  }
+  
+  mat-toolbar {
+    button {
+      margin-right: 15px;
+      border: 1px solid #424242;
+    }
+  }
+  

@@ -5,7 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
-import { ChartsModule } from 'ng2-charts';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -28,15 +29,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MapSizesComponent,
     GameModesComponent,
     StatisticComponent,
-    LiveGraphComponent
+    LiveGraphComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     MatCardModule,
+    MatToolbarModule,
+    MatButtonModule,
     BrowserAnimationsModule,
-    ChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,3 +1,14 @@
-<div>
-  <router-outlet />
+<div class="app-container">
+  <mat-toolbar class="topbar">
+    <div class="content-container topbar-content">
+      <button mat-raised-button routerLink="/home" routerLinkActive="active-link">All</button>
+      <button mat-raised-button routerLink="/regions" routerLinkActive="active-link">Regions</button>
+      <button mat-raised-button routerLink="/maps" routerLinkActive="active-link">Maps</button>
+      <button mat-raised-button routerLink="/map-sizes" routerLinkActive="active-link">Map Sizes</button>
+      <button mat-raised-button routerLink="/game-modes" routerLinkActive="active-link">Game Modes</button>
+    </div>
+  </mat-toolbar>
+  <div class="content-container">
+    <router-outlet></router-outlet>
+  </div>
 </div>

@@ -5,44 +5,6 @@
     justify-content: center;
     padding: 2rem;
     gap: 2rem; // Creates space between the cards
-}
-
-mat-card {
-    max-width: 600px; // Set the maximum width of the cards
-    width: 100%; // Makes sure the card takes the full width up to the max-width
-    padding: 1rem;
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1); // Adds a simple shadow to the cards
-
-    .mat-card-header {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #fafafa;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-    }
-
-    .mat-card-content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-
-        p {
-            margin: 0; // Removes the default paragraph margin
-            padding: 0.5rem;
-            background: #f5f5f5;
-            border-radius: 8px;
-        }
-    }
-
-    .mat-card-footer {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        background: #fafafa;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-top: 1rem;
-    }
+    height: 100%; // Ensure the container takes up the full height
+    width: 100%;
 }

@@ -1,4 +1,32 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/theming';
+@include mat-core();
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+$primary: mat-palette($mat-green, 800); // dark olive green
+$accent: mat-palette($mat-light-green, A200, A100, A400); // lighter green
+$warn: mat-palette($mat-red, 900); // dark red
+
+$theme: mat-dark-theme($primary, $accent, $warn);
+
+@include angular-material-theme($theme);
+
+// Extract the colors
+$primary-color: mat-color($primary);
+$accent-color: mat-color($accent);
+$warn-color: mat-color($warn);
+
+// Correct way to extract background and foreground colors
+$background-palette: map-get($theme, background);
+$background-color: mat-color($background-palette, background);
+
+$foreground-palette: map-get($theme, foreground);
+$foreground-color: mat-color($foreground-palette, text);
+
+html, body { 
+    height: 100%; 
+    background-color: $background-color; // Use the background color from the theme
+}
+body { 
+    margin: 0; 
+    font-family: Roboto, "Helvetica Neue", sans-serif; 
+    color: $foreground-color; // Use the foreground color from the theme
+}

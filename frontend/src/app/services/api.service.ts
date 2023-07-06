@@ -3,6 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
+export interface ChartData {
+  timestamp: string;
+  total_players: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })

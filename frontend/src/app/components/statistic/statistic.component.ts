@@ -21,5 +21,5 @@ export class StatisticComponent implements OnInit {
         console.error('Error: ', error);
       }
     );
-  }
+  }  
 }
