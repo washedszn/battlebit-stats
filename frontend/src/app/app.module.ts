@@ -7,6 +7,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -38,6 +40,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MatCardModule,
     MatToolbarModule,
     MatButtonModule,
+    FlexLayoutModule,
+    MatGridListModule,
     BrowserAnimationsModule,
   ],
   providers: [],

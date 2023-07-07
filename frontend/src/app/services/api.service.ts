@@ -8,6 +8,15 @@ export interface ChartData {
   total_players: number;
 }
 
+export interface LatestBatch {
+  id: number;
+  batch_id: string;
+  timestamp: string;
+  name: string;
+  total_players: number;
+  total_servers: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })

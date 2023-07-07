@@ -1,17 +1,24 @@
 <div class="statistics-container" *ngIf="statistics">
-  <div *ngFor="let stat of statistics;">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ stat.name.replace('_', ' ') }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Total Players: {{ stat.total_players }}</p>
-        <p>Total Servers: {{ stat.total_servers }}</p>
+  <div class="grid-container">
+    <div class="card first-card" *ngFor="let stat of statistics; index as i">
+      <mat-card>
+        <mat-card-title class="title">
+          <h3>{{ stat.name.replace('_', ' ') }}</h3>
+        </mat-card-title>
+        <mat-card-content fxLayout="column" fxLayout.gt-sm="row">
+          <div class="stat" fxFlex="50">
+            <p>Total Players: {{ stat.total_players }}</p>
+          </div>
+          <div class="stat" fxFlex="50">
+            <p>Total Servers: {{ stat.total_servers }}</p>
+          </div>
+          
+        </mat-card-content>
         <app-live-graph [statisticType]="statisticType" [filter]="stat.name"></app-live-graph>
-      </mat-card-content>
-      <mat-card-footer>
-        <p>Timestamp: {{ stat.timestamp }}</p>
-      </mat-card-footer>
-    </mat-card>
+        <mat-card-footer class="footer">
+          <p>{{ getRelativeTime(stat.timestamp) }}</p>
+        </mat-card-footer>
+      </mat-card>
+    </div>
   </div>
 </div>
