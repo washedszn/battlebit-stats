@@ -44,9 +44,8 @@ def fetch_and_store_data():
         
     calculate_aggregates(batch_id)
         
-    # 1 hour server stat cleanup
+    # 1 hour database cleanup
     ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(hours=1)).delete()
-    # 1 hour aggregate cleanup
     AggregatedServerStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
     DayNightStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
     MapSizeStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()

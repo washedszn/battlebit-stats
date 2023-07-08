@@ -99,6 +99,7 @@ class BaseStatistics(models.Model):
     class Meta:
         abstract = True
         unique_together = ['batch_id', 'timestamp', 'name']
+        ordering = ['-timestamp'] # newest to oldest ordering
 
 class RegionStatistics(BaseStatistics):
     pass

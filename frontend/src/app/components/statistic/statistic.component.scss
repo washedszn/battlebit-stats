@@ -29,6 +29,8 @@
 
 .stat {
     width: fit-content;
+    text-align: center;
+    font-size: 14px;
 }
 
 app-live-graph {
@@ -41,11 +43,13 @@ app-live-graph {
     border-top-right-radius: 6px;
 
     h3 {
+        font-size: 20px;
         margin: 10px;
     }
 }
 
 .footer {
     margin-left: 12px;
+    margin-top: -10px;
     color: #8a8a8a;
 }

@@ -1,0 +1,42 @@
+<div class="statistics-container" *ngIf="data">
+    <mat-card class="data-card">
+        <mat-card-title class="title">
+          <h3>Global Statistics</h3>
+        </mat-card-title>
+  
+      <mat-card-content class="total-stats" fxLayout="column" fxLayout.gt-sm="row">
+          <p>Total Players: <span [countUp]="data.total_players" [options]="{ startVal: oldData.total_players, duration: 2 }"></span></p>
+          <p>Total Maps: <span [countUp]="data.total_maps" [options]="{ startVal: oldData.total_maps, duration: 2 }"></span></p>
+          <p>Total Regions: <span [countUp]="data.total_regions" [options]="{ startVal: oldData.total_regions, duration: 2 }"></span></p>
+          <p>Total Map Sizes: <span [countUp]="data.total_map_sizes" [options]="{ startVal: oldData.total_map_sizes, duration: 2 }"></span></p>
+      </mat-card-content>
+
+    <mat-divider></mat-divider>
+
+      <mat-card-content fxLayout="column" fxLayout.gt-sm="row">
+        <div class="stat" fxFlex="50">
+            <h3>Most Used</h3>
+            <p>Map: {{ data.most_used_map }} ({{ data.most_used_map_count }} times, <span [countUp]="data.most_used_map_total_players" [options]="{ startVal: oldData.most_used_map_total_players, duration: 2 }"></span> players)</p>
+            <p>Map Size: {{ data.most_used_map_size }} ({{ data.most_used_map_size_count }} times, <span [countUp]="data.most_used_map_size_total_players" [options]="{ startVal: oldData.most_used_map_size_total_players, duration: 2 }"></span> players)</p>
+            <p>Game Mode: {{ data.most_used_game_mode }} ({{ data.most_used_game_mode_count }} times, <span [countUp]="data.most_used_game_mode_total_players" [options]="{ startVal: oldData.most_used_game_mode_total_players, duration: 2 }"></span> players)</p>
+            <p>Region: {{ data.most_used_region }} ({{ data.most_used_region_count }} times, <span [countUp]="data.most_used_region_total_players" [options]="{ startVal: oldData.most_used_region_total_players, duration: 2 }"></span> players)</p>
+            <p>Time of Day: {{ data.most_common_time_of_day }} ({{ data.most_common_time_of_day_count }} times, <span [countUp]="data.most_common_time_of_day_total_players" [options]="{ startVal: oldData.most_common_time_of_day_total_players, duration: 2 }"></span> players)</p>
+          </div>
+          <mat-divider vertical="true"></mat-divider>
+
+          <div class="stat" fxFlex="50">
+            <h3>Least Used</h3>
+            <p>Map: {{ data.least_used_map }} ({{ data.least_used_map_count }} times, <span [countUp]="data.least_used_map_total_players" [options]="{ startVal: oldData.least_used_map_total_players, duration: 2 }"></span> players)</p>
+            <p>Map Size: {{ data.least_used_map_size }} ({{ data.least_used_map_size_count }} times, <span [countUp]="data.least_used_map_size_total_players" [options]="{ startVal: oldData.least_used_map_size_total_players, duration: 2 }"></span> players)</p>
+            <p>Game Mode: {{ data.least_used_game_mode }} ({{ data.least_used_game_mode_count }} times, <span [countUp]="data.least_used_game_mode_total_players" [options]="{ startVal: oldData.least_used_game_mode_total_players, duration: 2 }"></span> players)</p>
+            <p>Region: {{ data.least_used_region }} ({{ data.least_used_region_count }} times, <span [countUp]="data.least_used_region_total_players" [options]="{ startVal: oldData.least_used_region_total_players, duration: 2 }"></span> players)</p>
+            <p>Time of Day: {{ data.least_common_time_of_day }} ({{ data.least_common_time_of_day_count }} times, <span [countUp]="data.least_common_time_of_day_total_players" [options]="{ startVal: oldData.least_common_time_of_day_total_players, duration: 2 }"></span> players)</p>
+          </div>
+      </mat-card-content>
+  
+      <mat-card-footer class="footer">
+        <p>{{ getRelativeTime(data.timestamp) }}</p>
+      </mat-card-footer>
+    </mat-card>
+  </div>
+  

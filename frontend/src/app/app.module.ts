@@ -9,6 +9,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDividerModule } from '@angular/material/divider';
+import { CountUpModule } from 'ngx-countup';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -21,6 +23,7 @@ import { RegionsComponent } from './views/regions/regions.component';
 import { MapSizesComponent } from './views/map-sizes/map-sizes.component';
 import { GameModesComponent } from './views/game-modes/game-modes.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServerStatisticComponent } from './components/server-statistic/server-statistic.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +35,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     GameModesComponent,
     StatisticComponent,
     LiveGraphComponent,
+    ServerStatisticComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +45,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MatToolbarModule,
     MatButtonModule,
     FlexLayoutModule,
+    MatDividerModule,
+    CountUpModule,
     MatGridListModule,
     BrowserAnimationsModule,
   ],
