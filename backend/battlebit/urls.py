@@ -18,7 +18,7 @@ from .views import (
 
 # View to display available API endpoints
 def api_overview(request):
-    base_url = '/api/battlebit'
+    base_url = '/'
     api_urls = {
         'LatestBatchMapStatistics': base_url + '/mapstatistics/latestbatch',
         'LatestBatchMapSizeStatistics': base_url + '/mapsizestatistics/latestbatch',

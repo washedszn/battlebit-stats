@@ -29,16 +29,6 @@ services:
     env_file:
       - ./backend/.env
 
-  frontend:
-    build: ./frontend
-    command: npm start
-    volumes:
-      - ./frontend:/app
-    ports:
-      - 4200:4200
-    depends_on:
-      - backend
-
   adminer:
     image: adminer
     ports:

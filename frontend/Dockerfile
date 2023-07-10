@@ -1,20 +1,12 @@
-# Use an official Node runtime as the parent image
-FROM node:latest
-
-# Set the working directory in the container to /app
+# Stage 1: Build the Angular application
+FROM node:latest as build
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build --omit=dev
 
-# Copy package.json and package-lock.json into the container at /app
-COPY package*.json /app/
-
-# Install any needed packages specified in package.json
-RUN npm install
-
-# Bundle the app source inside the Docker image
-COPY . /app/
-
-# Make port 4200 available to the outside world
-EXPOSE 4200
-
-# Run npm start when the container launches
-CMD ["npm", "start"]
+# Stage 2: Serve the application with Nginx
+FROM nginx:1.19
+COPY --from=build /app/dist/frontend /usr/share/nginx/html
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
