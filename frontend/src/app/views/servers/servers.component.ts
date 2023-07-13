@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  selector: 'app-servers',
+  templateUrl: './servers.component.html',
+  styleUrls: ['./servers.component.scss']
 })
-export class HomeComponent {
+export class ServersComponent {
   constructor(private metaTagService: Meta, private titleService: Title) { }
 
   ngOnInit() {
