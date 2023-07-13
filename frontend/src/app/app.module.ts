@@ -11,13 +11,15 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDividerModule } from '@angular/material/divider';
 import { CountUpModule } from 'ngx-countup';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
 import { LiveGraphComponent } from './components/live-graph/live-graph.component';
 
 // Views
-import { HomeComponent } from './views/home/home.component';
+import { ServersComponent } from './views/servers/servers.component';
 import { MapsComponent } from './views/maps/maps.component';
 import { RegionsComponent } from './views/regions/regions.component';
 import { MapSizesComponent } from './views/map-sizes/map-sizes.component';
@@ -28,7 +30,7 @@ import { ServerStatisticComponent } from './components/server-statistic/server-s
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
+    ServersComponent,
     MapsComponent,
     RegionsComponent,
     MapSizesComponent,
@@ -46,6 +48,8 @@ import { ServerStatisticComponent } from './components/server-statistic/server-s
     MatButtonModule,
     FlexLayoutModule,
     MatDividerModule,
+    MatMenuModule,
+    MatIconModule,
     CountUpModule,
     MatGridListModule,
     BrowserAnimationsModule,
