@@ -1,23 +1,63 @@
-<div class="statistics-container" *ngIf="statistics">
-  <div class="grid-container">
-    <div class="card first-card" *ngFor="let stat of statistics; index as i; trackBy: trackByFn">
-      <mat-card>
+<div class="statistic-container">
+  <div *ngIf="statistics.length > 0">
+    <div class="flex-container">
+      <mat-card class="first-card">
         <mat-card-title class="title">
-          <h3>{{ stat.name.replace('_', ' ') }} <a *ngIf="statisticType == 'regionstatistics'"> - {{currentTimes[i]}}</a></h3>
+          <h3>{{ statistics[0].name.replace('_', ' ') }} <a *ngIf="statisticType == 'regionstatistics'"> -
+              {{currentTimes[0]}}</a></h3>
         </mat-card-title>
-        <mat-card-content fxLayout="column" fxLayout.gt-sm="row">
-          <div class="stat" fxFlex="50">
-            <p>Total Players: <span [countUp]="stat.total_players" [options]="{ startVal: oldStatistics.length ? oldStatistics[i].total_players : 0, duration: 2 }" ></span></p>
+        <mat-card-content>
+          <div class="stat">
+            <p>Total Players: <span [countUp]="statistics[0].total_players"
+                [options]="{ startVal: oldStatistics.length ? oldStatistics[0].total_players : 0, duration: 2 }"></span>
+            </p>
           </div>
-          <div class="stat" fxFlex="50">
-            <p>Total Servers: <span [countUp]="stat.total_servers" [options]="{ startVal: oldStatistics.length ? oldStatistics[i].total_servers : 0, duration: 2 }"></span></p>
+          <div class="stat">
+            <p>Total Servers: <span [countUp]="statistics[0].total_servers"
+                [options]="{ startVal: oldStatistics.length ? oldStatistics[0].total_servers : 0, duration: 2 }"></span>
+            </p>
           </div>
         </mat-card-content>
-        <app-live-graph [statisticType]="statisticType" [filter]="stat.name"></app-live-graph>
+        <app-live-graph [statisticType]="statisticType" [filter]="statistics[0].name"></app-live-graph>
         <mat-card-footer class="footer">
-          <p>{{ getRelativeTime(stat.timestamp) }}</p>
+          <p>{{ getRelativeTime(statistics[0].timestamp) }}</p>
         </mat-card-footer>
       </mat-card>
+    </div>
+  </div>
+  <div class="card-container">
+    <div fxLayout="row wrap" fxLayoutGap="1rem grid">
+      <div
+      fxFlex="calc(100%/3)"
+      fxFlex.xs="100%"
+      fxFlex.sm="50%"
+      *ngFor="let stat of statistics.slice(1); index as i; trackBy: trackByFn">
+        <div class="flex-container">
+  
+          <mat-card class="card">
+            <mat-card-title class="title">
+              <h3>{{ stat.name.replace('_', ' ') }} <a *ngIf="statisticType == 'regionstatistics'"> - {{currentTimes[i +
+                  1]}}</a></h3>
+            </mat-card-title>
+            <mat-card-content>
+              <div class="stat">
+                <p>Total Players: <span [countUp]="stat.total_players"
+                    [options]="{ startVal: oldStatistics.length ? oldStatistics[i + 1].total_players : 0, duration: 2 }"></span>
+                </p>
+              </div>
+              <div class="stat">
+                <p>Total Servers: <span [countUp]="stat.total_servers"
+                    [options]="{ startVal: oldStatistics.length ? oldStatistics[i + 1].total_servers : 0, duration: 2 }"></span>
+                </p>
+              </div>
+            </mat-card-content>
+            <app-live-graph [statisticType]="statisticType" [filter]="stat.name"></app-live-graph>
+            <mat-card-footer class="footer">
+              <p>{{ getRelativeTime(stat.timestamp) }}</p>
+            </mat-card-footer>
+          </mat-card>
+        </div>
+      </div>
     </div>
   </div>
 </div>

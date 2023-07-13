@@ -1,12 +1,39 @@
 <div class="app-container">
-  <mat-toolbar class="topbar">
-    <div class="content-container topbar-content">
-      <button mat-raised-button routerLink="/home" routerLinkActive="active-link">All</button>
-      <button mat-raised-button routerLink="/regions" routerLinkActive="active-link">Regions</button>
-      <button mat-raised-button routerLink="/maps" routerLinkActive="active-link">Maps</button>
-      <button mat-raised-button routerLink="/map-sizes" routerLinkActive="active-link">Map Sizes</button>
-      <button mat-raised-button routerLink="/game-modes" routerLinkActive="active-link">Game Modes</button>
-    </div>
+  <mat-toolbar class="topbar overflow-fix">
+    <div class="topbar-content" fxLayout="row" fxLayoutAlign="space-between center"
+    *ngIf="(isSmallScreen$ | async); else bigScreen">
+    <img routerLink="/servers" src="/assets/images/logo.png" />
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button [routerLink]="['/servers']" mat-menu-item>
+        <span>Servers</span>
+      </button>
+      <button [routerLink]="['/regions']" mat-menu-item>
+        <span>Regions</span>
+      </button>
+      <button [routerLink]="['/maps']" mat-menu-item>
+        <span>Maps</span>
+      </button>
+      <button [routerLink]="['/map-sizes']" mat-menu-item>
+        <span>Map Sizes</span>
+      </button>
+      <button [routerLink]="['/game-modes']" mat-menu-item>
+        <span>Game Modes</span>
+      </button>
+    </mat-menu>
+  </div>  
+    <ng-template #bigScreen>
+      <div class="topbar-content">
+        <img routerLink="/servers" src="/assets/images/logo.png" />
+        <a routerLink="/servers" routerLinkActive="active-link">Servers</a>
+        <a routerLink="/regions" routerLinkActive="active-link">Regions</a>
+        <a routerLink="/maps" routerLinkActive="active-link">Maps</a>
+        <a routerLink="/map-sizes" routerLinkActive="active-link">Map Sizes</a>
+        <a routerLink="/game-modes" routerLinkActive="active-link">Game Modes</a>
+      </div>
+    </ng-template>
   </mat-toolbar>
   <div class="content-container">
     <router-outlet></router-outlet>
