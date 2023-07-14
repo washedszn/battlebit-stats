@@ -10,7 +10,7 @@ import { DateTime } from "luxon";
 })
 export class StatisticComponent implements OnInit {
   @Input() public statisticType!: string;
-  public statistics: any;
+  public statistics = Array();
   public gridListCols = 2;
   public rowHeight!: string;
   public currentTimes = Array();
@@ -28,7 +28,7 @@ export class StatisticComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.subscription = interval(5000).pipe( // Update every 5 seconds
+    this.subscription = interval(10_000).pipe( // Update every 60 seconds
       startWith(0),
       switchMap(() => this.apiService.getStatistics(this.statisticType))
     ).subscribe({

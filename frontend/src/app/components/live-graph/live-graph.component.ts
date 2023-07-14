@@ -19,37 +19,39 @@ export class LiveGraphComponent implements AfterViewInit, OnInit {
 
   constructor(private apiService: ApiService) { }
 
-  ngOnInit() {    
-    this.subscription = interval(5_000) // Emit a value every 5 seconds
+  ngOnInit() {
+    this.subscription = interval(10_000) // Emit a value every 10 seconds
       .pipe(
         startWith(0),
-        switchMap(() => this.apiService.getLiveData(this.statisticType, this.filter)),
-        tap((data: any[]) => {
-          if (!this.chart.data.labels!.length && !this.chart.data.datasets[0].data.length) {
-            // This is the first batch of data, use it to initialize the chart
-            // Reverse the data as the chart plots from oldest to newest
-            data = data.reverse();
-            this.chart.data.labels = data.map(item => `${new Date(item.timestamp).toLocaleString()} - Total Players: ${item.total_players}`);
-            this.chart.data.datasets[0].data = data.map(item => item.total_players);
-          } else {
-            // Chart is already initialized, just add new data and remove old one
-            const item = data[0];
-            const newLabel = `${new Date(item.timestamp).toLocaleString()} - Total Players: ${item.total_players}`;
-            const newDataPoint = item.total_players;
-  
-            // Remove the first element (oldest data point)
-            this.chart.data.labels!.shift();
-            this.chart.data.datasets[0].data.shift();
-  
-            // Add the new data to the end
-            this.chart.data.labels!.push(newLabel);
-            this.chart.data.datasets[0].data.push(newDataPoint);
-          }
-  
-          this.chart.update('none'); // Update chart without animating
-        })
+        switchMap(() => this.apiService.getLiveData(this.statisticType, this.filter))
       )
-      .subscribe();
+      .subscribe((data: any[]) => {
+        console.log('got data for: ', data);
+            
+        if (!this.chart) {
+          // This is the first batch of data, use it to initialize the chart
+          // Reverse the data as the chart plots from oldest to newest
+          data = data.reverse();
+          this.createChart(
+            data.map(item => `${new Date(item.timestamp).toLocaleString()} - Total Players: ${item.total_players}`),
+            data.map(item => item.total_players)
+          );
+        } else {
+          // Chart is already initialized, just add new data and remove old one
+          const item = data[0];
+          const newLabel = `${new Date(item.timestamp).toLocaleString()} - Total Players: ${item.total_players}`;
+          const newDataPoint = item.total_players;
+    
+          // Remove the first element (oldest data point)
+          this.chart.data.labels!.shift();
+          this.chart.data.datasets[0].data.shift();
+    
+          // Add the new data to the end
+          this.chart.data.labels!.push(newLabel);
+          this.chart.data.datasets[0].data.push(newDataPoint);
+          this.chart.update('none'); // Update chart without animating
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -57,18 +59,17 @@ export class LiveGraphComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
-    this.createChart();
     this.resizeChart();
   }
 
-  createChart() {
+  createChart(labels: string[], data: number[]) {
     this.chart = new Chart(this.chartCanvas.nativeElement, {
       type: 'line',
       data: {
-        labels: [],
+        labels: labels,
         datasets: [{
           label: 'Total Players',
-          data: [],
+          data: data,
           fill: false,
           pointRadius: 0,
           pointHitRadius: 0,
@@ -91,7 +92,7 @@ export class LiveGraphComponent implements AfterViewInit, OnInit {
         maintainAspectRatio: true
       }
     });
-  }
+  }  
 
   resizeChart() {
     if (this.chart.canvas.parentNode != null) {
