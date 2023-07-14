@@ -13,9 +13,9 @@ from .models import (
     GameModeStatistics,
     RegionStatistics
 )
-import logging
+from celery.utils.log import get_task_logger
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 @app.task
 def fetch_and_store_data():
@@ -50,13 +50,19 @@ def fetch_and_store_data():
     # 1 hour database cleanup
     deleted_server_stats = ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(hours=1)).delete()
     deleted_agg_stats = AggregatedServerStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
-    DayNightStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
-    MapSizeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
-    MapStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
-    GameModeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
-    RegionStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
-    
-    logger.info(f"Deleted {deleted_server_stats[0]} ServerStatistics objects and {deleted_agg_stats[0]} AggregatedServerStatistics objects")
+    deleted_day_night_stats = DayNightStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    deleted_map_size_stats = MapSizeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    deleted_map_stats = MapStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    deleted_game_mode_stats = GameModeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    deleted_region_stats = RegionStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+
+    logger.info(f"Deleted {deleted_server_stats[0]} ServerStatistics objects")
+    logger.info(f"Deleted {deleted_agg_stats[0]} AggregatedServerStatistics objects")
+    logger.info(f"Deleted {deleted_day_night_stats[0]} DayNightStatistics objects")
+    logger.info(f"Deleted {deleted_map_size_stats[0]} MapSizeStatistics objects")
+    logger.info(f"Deleted {deleted_map_stats[0]} MapStatistics objects")
+    logger.info(f"Deleted {deleted_game_mode_stats[0]} GameModeStatistics objects")
+    logger.info(f"Deleted {deleted_region_stats[0]} RegionStatistics objects")
 
 @app.task
 def calculate_aggregates(batch_id):
