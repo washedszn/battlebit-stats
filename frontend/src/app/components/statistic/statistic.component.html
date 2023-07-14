@@ -28,9 +28,9 @@
   <div class="card-container">
     <div fxLayout="row wrap" fxLayoutGap="1rem grid">
       <div
-      fxFlex="calc(100%/3)"
-      fxFlex.xs="100%"
-      fxFlex.sm="50%"
+      fxFlex.gt-md="calc(100%/3)"
+      fxFlex.gt-sm="50%"
+      fxFlex.lt-md="100%"
       *ngFor="let stat of statistics.slice(1); index as i; trackBy: trackByFn">
         <div class="flex-container">
   
