@@ -13,6 +13,9 @@ from .models import (
     GameModeStatistics,
     RegionStatistics
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 @app.task
 def fetch_and_store_data():
@@ -45,13 +48,15 @@ def fetch_and_store_data():
     calculate_aggregates(batch_id)
         
     # 1 hour database cleanup
-    ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(hours=1)).delete()
-    AggregatedServerStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
-    DayNightStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
-    MapSizeStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
-    MapStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
-    GameModeStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
-    RegionStatistics.objects.filter(timestamp=timezone.now() - timedelta(hours=1)).delete()
+    deleted_server_stats = ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(hours=1)).delete()
+    deleted_agg_stats = AggregatedServerStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    DayNightStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    MapSizeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    MapStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    GameModeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    RegionStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+    
+    logger.info(f"Deleted {deleted_server_stats[0]} ServerStatistics objects and {deleted_agg_stats[0]} AggregatedServerStatistics objects")
 
 @app.task
 def calculate_aggregates(batch_id):

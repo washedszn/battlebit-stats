@@ -18,7 +18,7 @@
             </p>
           </div>
         </mat-card-content>
-        <app-live-graph [statisticType]="statisticType" [filter]="statistics[0].name"></app-live-graph>
+        <app-live-graph *ngIf="statistics[0]" [statisticType]="statisticType" [filter]="statistics[0].name"></app-live-graph>
         <mat-card-footer class="footer">
           <p>{{ getRelativeTime(statistics[0].timestamp) }}</p>
         </mat-card-footer>

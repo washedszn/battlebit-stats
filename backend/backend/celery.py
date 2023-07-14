@@ -20,8 +20,8 @@ app.autodiscover_tasks()
 from datetime import timedelta
 
 app.conf.beat_schedule = {
-    'fetch-and-store-data-every-5-seconds': {
+    'fetch-and-store-data-every-10-seconds': {
         'task': 'battlebit.tasks.fetch_and_store_data',
-        'schedule': timedelta(seconds=5),
+        'schedule': timedelta(seconds=10),
     },
 }

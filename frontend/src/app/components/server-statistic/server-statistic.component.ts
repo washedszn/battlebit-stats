@@ -16,7 +16,7 @@ export class ServerStatisticComponent implements OnInit {
   constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
-    this.subscription = interval(5000).pipe( // Update every 5 seconds
+    this.subscription = interval(60_000).pipe( // Update every 10 seconds
       startWith(0),
       switchMap(() => this.apiService.getStatistics('aggregatedserverstatistics'))
     ).subscribe({
