@@ -1,5 +1,11 @@
-.active-link { 
-  font-weight: 1000;
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.active-link {
+  font-weight: 500;
   color: rgb(255, 255, 255);
 }
 
@@ -12,7 +18,7 @@ a {
 
 img {
   cursor: pointer;
-  width: 46px;
+  width: 42px;
 }
 
 .overflow-fix {
@@ -43,4 +49,38 @@ img {
   width: 100%;
   margin: auto;
   overflow: auto;
+  flex-grow: 1;
+}
+
+.footer {
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  min-width: 195px;
+  width: 100%;
+}
+
+.footer-content {
+  font-family: Roboto;
+  max-width: 1280px;
+  width: 100%;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  color: rgb(180, 180, 180);
+  text-decoration: none;
+
+  a {
+    margin: 0;
+    color: rgb(255, 255, 255);
+    align-items: center;
+  }
+
+  img {
+    width: 18px;
+    height: auto;
+    margin-right: 8px;
+    margin-bottom: 2px;
+    vertical-align: middle;
+  }
 }

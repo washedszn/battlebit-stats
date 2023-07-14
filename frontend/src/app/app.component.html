@@ -1,29 +1,29 @@
 <div class="app-container">
   <mat-toolbar class="topbar overflow-fix">
     <div class="topbar-content" fxLayout="row" fxLayoutAlign="space-between center"
-    *ngIf="(isSmallScreen$ | async); else bigScreen">
-    <img routerLink="/servers" src="/assets/images/logo.png" />
-    <button mat-icon-button [matMenuTriggerFor]="menu">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <mat-menu #menu="matMenu">
-      <button [routerLink]="['/servers']" mat-menu-item>
-        <span>Servers</span>
+      *ngIf="(isSmallScreen$ | async); else bigScreen">
+      <img routerLink="/servers" src="/assets/images/logo.png" />
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>menu</mat-icon>
       </button>
-      <button [routerLink]="['/regions']" mat-menu-item>
-        <span>Regions</span>
-      </button>
-      <button [routerLink]="['/maps']" mat-menu-item>
-        <span>Maps</span>
-      </button>
-      <button [routerLink]="['/map-sizes']" mat-menu-item>
-        <span>Map Sizes</span>
-      </button>
-      <button [routerLink]="['/game-modes']" mat-menu-item>
-        <span>Game Modes</span>
-      </button>
-    </mat-menu>
-  </div>  
+      <mat-menu #menu="matMenu">
+        <button [routerLink]="['/servers']" mat-menu-item>
+          <span>Servers</span>
+        </button>
+        <button [routerLink]="['/regions']" mat-menu-item>
+          <span>Regions</span>
+        </button>
+        <button [routerLink]="['/maps']" mat-menu-item>
+          <span>Maps</span>
+        </button>
+        <button [routerLink]="['/map-sizes']" mat-menu-item>
+          <span>Map Sizes</span>
+        </button>
+        <button [routerLink]="['/game-modes']" mat-menu-item>
+          <span>Game Modes</span>
+        </button>
+      </mat-menu>
+    </div>
     <ng-template #bigScreen>
       <div class="topbar-content">
         <img routerLink="/servers" src="/assets/images/logo.png" />
@@ -38,4 +38,19 @@
   <div class="content-container">
     <router-outlet></router-outlet>
   </div>
+  <mat-toolbar class="footer">
+    <div class="footer-content" fxLayout="row" fxLayoutAlign="space-between center">
+      <p>Site created by <a href="https://discordapp.com/users/washedh">Washed</a>
+        <ng-container *ngIf="!(isSmallScreen$ | async)">
+         - Not affiliated with BattleBit Remastered
+        </ng-container>
+      </p>
+      <div class="github">
+        <a href="https://github.com/washedszn/battlebit-stats" target="_blank">
+          <img src="../assets/images/github-mark-white.svg" />
+          <a *ngIf="!(isSmallScreen$ | async)">Open Source</a>
+        </a>
+      </div>
+    </div>
+  </mat-toolbar>
 </div>
