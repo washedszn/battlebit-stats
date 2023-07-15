@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnInit, Input, HostListener } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { ApiService,  } from 'src/app/services/api.service';
-import { tap, Subscription, interval, startWith, switchMap } from 'rxjs';
+import { Subscription, interval, startWith, switchMap } from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -25,9 +25,7 @@ export class LiveGraphComponent implements AfterViewInit, OnInit {
         startWith(0),
         switchMap(() => this.apiService.getLiveData(this.statisticType, this.filter))
       )
-      .subscribe((data: any[]) => {
-        console.log('got data for: ', data);
-            
+      .subscribe((data: any[]) => {        
         if (!this.chart) {
           // This is the first batch of data, use it to initialize the chart
           // Reverse the data as the chart plots from oldest to newest

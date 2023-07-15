@@ -1,6 +1,9 @@
+import json
 import uuid
 from django.db import models
 from django.utils import timezone
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 class ServerStatistics(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
@@ -111,6 +114,25 @@ class MapSizeStatistics(BaseStatistics):
     pass
 
 class GameModeStatistics(BaseStatistics):
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        channel_layer = get_channel_layer()
+        data = json.dumps({
+        self.name: [
+            {
+                'timestamp': self.timestamp.strftime('%Y-%m-%dT%H:%M:%S'), 
+                'total_players': self.total_players
+            }
+        ]
+    })
+        async_to_sync(channel_layer.group_send)(
+            'gamemodestatistics',
+            {
+                'type': 'gamemodestatistics.update',
+                'text': data
+            }
+        )
     pass
 
 class DayNightStatistics(BaseStatistics):
