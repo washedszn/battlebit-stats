@@ -1,7 +1,7 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnInit, Input, HostListener } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, Input, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
-import { ApiService,  } from 'src/app/services/api.service';
-import { Subscription, interval, startWith, switchMap } from 'rxjs';
+import { ChartData } from 'src/app/services/api.service';
+import 'chartjs-adapter-date-fns';
 
 Chart.register(...registerables);
 
@@ -10,96 +10,90 @@ Chart.register(...registerables);
   templateUrl: './live-graph.component.html',
   styleUrls: ['./live-graph.component.scss']
 })
-export class LiveGraphComponent implements AfterViewInit, OnInit {
+export class LiveGraphComponent implements AfterViewInit, OnChanges {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
-  @Input() public statisticType!: string;
-  @Input() public filter!: string;
+  @Input() public chartData = Array<ChartData>();
   public chart!: Chart;
-  private subscription!: Subscription;
 
-  constructor(private apiService: ApiService) { }
+  constructor() { }
 
-  ngOnInit() {
-    this.subscription = interval(10_000) // Emit a value every 10 seconds
-      .pipe(
-        startWith(0),
-        switchMap(() => this.apiService.getLiveData(this.statisticType, this.filter))
-      )
-      .subscribe((data: any[]) => {        
-        if (!this.chart) {
-          // This is the first batch of data, use it to initialize the chart
-          // Reverse the data as the chart plots from oldest to newest
-          data = data.reverse();
-          this.createChart(
-            data.map(item => `${new Date(item.timestamp).toLocaleString()} - Total Players: ${item.total_players}`),
-            data.map(item => item.total_players)
-          );
-        } else {
-          // Chart is already initialized, just add new data and remove old one
-          const item = data[0];
-          const newLabel = `${new Date(item.timestamp).toLocaleString()} - Total Players: ${item.total_players}`;
-          const newDataPoint = item.total_players;
-    
-          // Remove the first element (oldest data point)
-          this.chart.data.labels!.shift();
-          this.chart.data.datasets[0].data.shift();
-    
-          // Add the new data to the end
-          this.chart.data.labels!.push(newLabel);
-          this.chart.data.datasets[0].data.push(newDataPoint);
-          this.chart.update('none'); // Update chart without animating
-        }
-      });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['chartData'] && changes['chartData'].currentValue) {
+      const newChartData = changes['chartData'].currentValue;
+      if (this.chart) {
+        this.chart.data.labels = newChartData.map((e: ChartData) => e.timestamp);
+        this.chart.data.datasets[0].data = newChartData.map((e: ChartData) => {
+          return {
+            x: new Date(e.timestamp).getTime(),
+            y: e.total_players
+          }
+        });
+        this.chart.update('none');                    
+      }
+    }
   }
 
   ngAfterViewInit() {
+    this.createChart();
     this.resizeChart();
   }
 
-  createChart(labels: string[], data: number[]) {
+  createChart() {
     this.chart = new Chart(this.chartCanvas.nativeElement, {
       type: 'line',
       data: {
-        labels: labels,
         datasets: [{
           label: 'Total Players',
-          data: data,
+          data: this.chartData.map((e: ChartData) => {
+            return {
+              x: new Date(e.timestamp).getTime(),
+              y: e.total_players
+            }
+          }),
           fill: false,
           pointRadius: 0,
           pointHitRadius: 0,
           borderColor: 'rgb(75, 192, 192)',
-          tension: 0.3,
+          tension: 0.2,
+          stepped: false,
+          borderDash: []
         }]
       },
       options: {
+        spanGaps: true,
+        normalized: true,
+        animation: false,
+        parsing: false,
         plugins: {
           legend: {
             display: false
+          },
+          decimation: {
+            algorithm: 'min-max',
+            enabled: true,
+            //samples: 300,
           }
         },
         scales: {
           x: {
-            display: false
+            display: false,
+            type: 'time',
           }
         },
         responsive: true,
         maintainAspectRatio: true
       }
     });
-  }  
+  }
 
   resizeChart() {
-    if (this.chart.canvas.parentNode != null) {
+    if (this.chart && this.chart.canvas && this.chart.canvas.parentNode != null) {
       (this.chart.canvas.parentNode as HTMLElement).style.height = 'auto';
       (this.chart.canvas.parentNode as HTMLElement).style.width = 'auto';
       this.chart.resize();
     }
   }
-  
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.resizeChart();

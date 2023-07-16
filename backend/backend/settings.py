@@ -71,7 +71,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('redis://redis:6379')],
+            "hosts": [('redis://redis:6379/0')],
         },
     },
 }
@@ -136,7 +136,8 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_BROKER_URL = f'redis://{os.getenv("REDIS_HOST")}:{os.getenv("REDIS_PORT")}/0'
+CELERY_BROKER_URL = f'redis://redis:6379/0'
+BROKER_URL = 'redis://redis:6379/0'
 
 # CORS 
 # TODO: Switch to specified allowed origins

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, throwError, fromEvent, map } from 'rxjs';
+import { Observable, catchError, throwError, Subject, Observer } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface ChartData {
   timestamp: string;
   total_players: number;
+  total_servers: number;
 }
 
 export interface LatestBatch {
@@ -22,27 +23,25 @@ export interface LatestBatch {
 })
 export class ApiService {
 
-  private socket: WebSocket | undefined;
+  private ws: WebSocket | null = null;
 
   constructor(private http: HttpClient) { }
 
-  connectSocket(type: string) {
-    const url = `ws://localhost:8001/ws/${type}/`;
-    this.socket = new WebSocket(url);
+  public connect(url: string): Observable<any> {
+    this.ws = new WebSocket(url);
+    return new Observable((subscriber) => {
+      this.ws!.onmessage = (event) => subscriber.next(event);
+      this.ws!.onerror = (event) => subscriber.error(event);
+      this.ws!.onclose = (event) => subscriber.complete();
+      return () => this.ws!.close();
+    });
   }
 
-  disconnectSocket(type: string) {
-    this.socket?.close();
-  }
-
-  getLiveSocketData(type: string): Observable<any> {
-    if (!this.socket) {
-      throw new Error('WebSocket connection is not established. Please connect first.');
+  public disconnect(): void {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
     }
-
-    return fromEvent<MessageEvent>(this.socket, 'message').pipe(
-      map(event => JSON.parse(event.data))
-    );
   }
 
   // Soon to be deprecated
