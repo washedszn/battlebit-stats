@@ -24,4 +24,8 @@ app.conf.beat_schedule = {
         'task': 'battlebit.tasks.fetch_and_store_data',
         'schedule': timedelta(seconds=1),
     },
+    'cleanup-database-every-1-minute': {
+        'task': 'battlebit.tasks.cleanup_database',
+        'schedule': timedelta(minutes=1),
+    },
 }
