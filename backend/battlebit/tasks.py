@@ -44,6 +44,7 @@ def fetch_and_store_data(self):
         data = response.json()
         batch_id = uuid.uuid4()
     
+        server_stats_list = []
         for item in data:
             server_stats = ServerStatistics(
                 batch_id=batch_id,
@@ -62,14 +63,12 @@ def fetch_and_store_data(self):
                 anti_cheat=item.get('AntiCheat', 'N/A'),
                 build=item.get('Build', 'N/A'),
             )
-            server_stats.save()
+            server_stats_list.append(server_stats)
         
-        calculate_aggregates(batch_id)
+        calculate_aggregates(server_stats_list, batch_id)
             
 @app.task
-def calculate_aggregates(batch_id):
-    stats = ServerStatistics.objects.filter(batch_id=batch_id)
-
+def calculate_aggregates(stats, batch_id):
     # Initialize counters
     map_counter = Counter()
     map_size_counter = Counter()
