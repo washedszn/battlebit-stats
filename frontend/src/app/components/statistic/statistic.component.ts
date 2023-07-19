@@ -1,7 +1,14 @@
-import { Component, Input, OnInit, HostListener  } from '@angular/core';
-import { ApiService, LatestBatch } from '../../services/api.service';
-import { Subscription, interval, startWith, switchMap } from 'rxjs';
-import { DateTime } from "luxon";
+import { Component, Input, OnInit, HostListener } from '@angular/core';
+import { ApiService, ChartData } from '../../services/api.service';
+import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment';
+
+interface LatestData {
+  name: string,
+  timestamp: string,
+  total_players: number,
+  total_servers: number
+}
 
 @Component({
   selector: 'app-statistic',
@@ -15,8 +22,11 @@ export class StatisticComponent implements OnInit {
   public rowHeight!: string;
   public currentTimes = Array();
   public oldStatistics = Array();
+  public chartData = Object();
+  public latestData = Array();
 
-  private subscription!: Subscription;
+  wsSubscription: Subscription | undefined;
+  intervalSubscription: Subscription | undefined;
 
   constructor(private apiService: ApiService) {
     this.updateGridListCols();
@@ -28,38 +38,64 @@ export class StatisticComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.subscription = interval(10_000).pipe( // Update every 60 seconds
-      startWith(0),
-      switchMap(() => this.apiService.getStatistics(this.statisticType))
-    ).subscribe({
-      next: (data) => {        
-        this.statistics = data.sort((a: LatestBatch, b: LatestBatch) => b.total_players - a.total_players);
-        data.forEach((element: LatestBatch, i: number) => {
-          let timezone = this.mapFilterToTimezone(element.name)
-          this.currentTimes[i] = DateTime.now().setZone(timezone).toLocaleString(DateTime.TIME_24_SIMPLE);
-        });
-        this.oldStatistics = data;
-      },
-      error: (error) => {
-        console.error('Error: ', error);
-      }
-    });
+    this.wsSubscription = this.apiService.connect(`${environment.WS_URL}/ws/statistics/${this.statisticType}/`)
+      .subscribe({
+        next: (msgEvent: MessageEvent) => {
+          let newData = JSON.parse(msgEvent.data);
+
+          // store latest data for component to use
+          if (this.latestData.find((e: LatestData) => e.name === newData.name)) {            
+            this.latestData = this.latestData.map((e: LatestData) => {
+              if (e.name === newData.name) {                
+                let newValues = newData.data[newData.data.length - 1];
+                return {
+                  ...e,
+                  ...newValues
+                }
+              }
+              return e;
+            });            
+          } else {            
+            this.latestData.push({
+              name: newData.name,
+              ...newData.data[newData.data.length - 1]
+            })
+          }
+
+          // sort latest data of highest amount of total players
+          this.latestData = this.latestData.sort((a: LatestData, b: LatestData) => b.total_players - a.total_players)
+
+          // Handle data going to the live-graph component
+          if (!this.chartData[`${newData.name}`]) {
+            // set initial data
+            this.chartData[`${newData.name}`] = newData.data
+          } else {
+            // add incoming data
+            this.chartData[`${newData.name}`] = [...this.chartData[`${newData.name}`], ...newData.data]
+
+            // remove old data
+            const lastElementTimestamp = this.chartData[`${newData.name}`][this.chartData[`${newData.name}`].length - 1].timestamp;
+            const oneHourAgoFromLastElement = new Date(lastElementTimestamp);
+            oneHourAgoFromLastElement.setHours(oneHourAgoFromLastElement.getHours() - 1);
+
+            this.chartData[`${newData.name}`] = this.chartData[`${newData.name}`].filter((e: ChartData) => {
+              return new Date(e.timestamp) >= oneHourAgoFromLastElement;
+            });
+          }
+        },
+        error: err => console.error('ws error', err),
+        complete: () => console.log('ws connection closed')
+      });
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe(); // this will prevent memory leaks
-  }
-
-  mapFilterToTimezone(filter: string): string {
-    const map: Record<string, string> = {
-      'Japan_Central': 'Asia/Tokyo',
-      'America_Central': 'America/Chicago',
-      'Brazil_Central': 'America/Sao_Paulo',
-      'Europe_Central': 'Europe/Paris',
-      'Australia_Central': 'Australia/Sydney'
-    };
-  
-    return map[filter] || 'UTC'; // Default to UTC if the filter isn't found in the map
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+    if (this.intervalSubscription) {
+      this.intervalSubscription.unsubscribe();
+    }
+    this.apiService.disconnect();
   }
 
   getRelativeTime(timestamp: string): string {

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, Subject, Observer } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface ChartData {
   timestamp: string;
   total_players: number;
+  total_servers: number;
 }
 
 export interface LatestBatch {
@@ -22,8 +23,28 @@ export interface LatestBatch {
 })
 export class ApiService {
 
+  private ws: WebSocket | null = null;
+
   constructor(private http: HttpClient) { }
 
+  public connect(url: string): Observable<any> {
+    this.ws = new WebSocket(url);
+    return new Observable((subscriber) => {
+      this.ws!.onmessage = (event) => subscriber.next(event);
+      this.ws!.onerror = (event) => subscriber.error(event);
+      this.ws!.onclose = (event) => subscriber.complete();
+      return () => this.ws!.close();
+    });
+  }
+
+  public disconnect(): void {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+  }
+
+  // Soon to be deprecated
   getLiveData(type: string, filter: string): Observable<any> {
     return this.http.get<any>(`${environment.API_URL}/${type}/lasthour/${filter}`)
       .pipe(

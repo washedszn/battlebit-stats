@@ -13,16 +13,32 @@ services:
   redis:
     image: "redis:alpine"
 
-  backend:
+  backend-gunicorn:
     build: ./backend
     command: >
       bash -c "python manage.py wait_for_db &&
                python manage.py migrate &&
-               python manage.py runserver 0.0.0.0:8000"
+               gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - ./backend:/code
     ports:
       - 8000:8000
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+
+  backend-daphne:
+    build: ./backend
+    command: >
+      bash -c "python manage.py wait_for_db &&
+               python manage.py migrate &&
+               daphne backend.asgi:application --port 8001 --bind 0.0.0.0"
+    volumes:
+      - ./backend:/code
+    ports:
+      - 8001:8001
     depends_on:
       - db
       - redis

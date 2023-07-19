@@ -13,55 +13,62 @@ from .models import (
     GameModeStatistics,
     RegionStatistics
 )
-import logging
+from requests import RequestException
+from celery.utils.log import get_task_logger
+import time
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 @app.task
-def fetch_and_store_data():
-    response = requests.get('https://publicapi.battlebit.cloud/Servers/GetServerList')
-    response.raise_for_status()  
-    data = response.json()
-    
-    batch_id = uuid.uuid4()
-    
-    for item in data:
-        server_stats = ServerStatistics(
-            batch_id=batch_id,
-            name=item.get('Name', 'N/A'),
-            map=item.get('Map', 'N/A'),
-            map_size=item.get('MapSize', 'N/A'),
-            game_mode=item.get('Gamemode', 'N/A'),
-            region=item.get('Region', 'N/A'),
-            players=item.get('Players', 0),
-            queue_players=item.get('QueuePlayers', 0),
-            max_players=item.get('MaxPlayers', 0),
-            hz=item.get('Hz', 0),
-            day_night=item.get('DayNight', 'N/A'),
-            is_official=item.get('IsOfficial', False),
-            has_password=item.get('HasPassword', False),
-            anti_cheat=item.get('AntiCheat', 'N/A'),
-            build=item.get('Build', 'N/A'),
-        )
-        server_stats.save()
-        
-    calculate_aggregates(batch_id)
-        
-    # 1 hour database cleanup
-    deleted_server_stats = ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(hours=1)).delete()
-    deleted_agg_stats = AggregatedServerStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+def cleanup_database():
+    ServerStatistics.objects.filter(created_at__lt=timezone.now() - timedelta(hours=1)).delete()
+    AggregatedServerStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
     DayNightStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
     MapSizeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
     MapStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
     GameModeStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
     RegionStatistics.objects.filter(timestamp__lt=timezone.now() - timedelta(hours=1)).delete()
+
+
+@app.task(bind=True)
+def fetch_and_store_data(self):
+    try:
+        response = requests.get('https://publicapi.battlebit.cloud/Servers/GetServerList', timeout=10)
+        response.raise_for_status()  # This will raise an HTTPError if the response was unsuccessful.
+    except RequestException as e:  # This catches any requests-related exceptions.
+        logger.warning(f"Request failed due to {str(e)}. Not retrying.")
+    except Exception as e:  # Catch any other exceptions.
+        logger.error(f"An unexpected error occurred: {str(e)}")
+    else:
+        # Proceed with your data processing
+        data = response.json()
+        batch_id = uuid.uuid4()
     
-    logger.info(f"Deleted {deleted_server_stats[0]} ServerStatistics objects and {deleted_agg_stats[0]} AggregatedServerStatistics objects")
-
+        server_stats_list = []
+        for item in data:
+            server_stats = ServerStatistics(
+                batch_id=batch_id,
+                name=item.get('Name', 'N/A'),
+                map=item.get('Map', 'N/A'),
+                map_size=item.get('MapSize', 'N/A'),
+                game_mode=item.get('Gamemode', 'N/A'),
+                region=item.get('Region', 'N/A'),
+                players=item.get('Players', 0),
+                queue_players=item.get('QueuePlayers', 0),
+                max_players=item.get('MaxPlayers', 0),
+                hz=item.get('Hz', 0),
+                day_night=item.get('DayNight', 'N/A'),
+                is_official=item.get('IsOfficial', False),
+                has_password=item.get('HasPassword', False),
+                anti_cheat=item.get('AntiCheat', 'N/A'),
+                build=item.get('Build', 'N/A'),
+            )
+            server_stats_list.append(server_stats)
+        
+        calculate_aggregates(server_stats_list, batch_id)
+            
 @app.task
-def calculate_aggregates(batch_id):
-    stats = ServerStatistics.objects.filter(batch_id=batch_id)
-
+def calculate_aggregates(stats, batch_id):
     # Initialize counters
     map_counter = Counter()
     map_size_counter = Counter()

@@ -1,9 +1,11 @@
 from rest_framework import viewsets, mixins
 from rest_framework.generics import ListAPIView
+from rest_framework.response import Response as DRFResponse
 from .models import ServerStatistics, MapStatistics, MapSizeStatistics, GameModeStatistics, RegionStatistics, DayNightStatistics, AggregatedServerStatistics
 from .serializers import AggregatedServerStatisticsSerializer, DayNightStatisticsSerializer, GameModeStatisticsSerializer, MapSizeStatisticsSerializer, MapStatisticsSerializer, RegionStatisticsSerializer, ServerStatisticsSerializer, TotalPlayersAndTimestampSerializer
 from django.utils import timezone
 from datetime import timedelta
+from collections import defaultdict
 
 class ReadOnlyModelViewSet(mixins.RetrieveModelMixin,
                            mixins.ListModelMixin,
@@ -97,3 +99,77 @@ class LastHourAggregatedServerStatisticsView(ListAPIView):
     def get_queryset(self):
         last_hour_time = timezone.now() - timedelta(hours=1)
         return AggregatedServerStatistics.objects.filter(timestamp__gte=last_hour_time).values('timestamp', 'total_players')
+
+# Views for overall views 
+
+class LastHourAllRegionsStatisticsView(ListAPIView):
+    serializer_class = TotalPlayersAndTimestampSerializer
+
+    def get_queryset(self):
+        last_hour_time = timezone.now() - timedelta(hours=1)
+        queryset = RegionStatistics.objects.filter(timestamp__gte=last_hour_time)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        statistics_data = defaultdict(list)
+        for obj in queryset:
+            statistics_data[obj.name].append({
+                'timestamp': obj.timestamp,
+                'total_players': obj.total_players
+            })
+        return DRFResponse(statistics_data)
+    
+class LastHourAllMapsStatisticsView(ListAPIView):
+    serializer_class = TotalPlayersAndTimestampSerializer
+
+    def get_queryset(self):
+        last_hour_time = timezone.now() - timedelta(hours=1)
+        queryset = MapStatistics.objects.filter(timestamp__gte=last_hour_time)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        statistics_data = defaultdict(list)
+        for obj in queryset:
+            statistics_data[obj.name].append({
+                'timestamp': obj.timestamp,
+                'total_players': obj.total_players
+            })
+        return DRFResponse(statistics_data)
+    
+class LastHourAllMapSizesStatisticsView(ListAPIView):
+    serializer_class = TotalPlayersAndTimestampSerializer
+
+    def get_queryset(self):
+        last_hour_time = timezone.now() - timedelta(hours=1)
+        queryset = MapSizeStatistics.objects.filter(timestamp__gte=last_hour_time)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        statistics_data = defaultdict(list)
+        for obj in queryset:
+            statistics_data[obj.name].append({
+                'timestamp': obj.timestamp,
+                'total_players': obj.total_players
+            })
+        return DRFResponse(statistics_data)
+    
+class LastHourAllGameModesStatisticsView(ListAPIView):
+    serializer_class = TotalPlayersAndTimestampSerializer
+
+    def get_queryset(self):
+        last_hour_time = timezone.now() - timedelta(hours=1)
+        queryset = GameModeStatistics.objects.filter(timestamp__gte=last_hour_time)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        statistics_data = defaultdict(list)
+        for obj in queryset:
+            statistics_data[obj.name].append({
+                'timestamp': obj.timestamp,
+                'total_players': obj.total_players
+            })
+        return DRFResponse(statistics_data)

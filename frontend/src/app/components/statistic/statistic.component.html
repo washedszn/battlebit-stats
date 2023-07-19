@@ -1,26 +1,23 @@
 <div class="statistic-container">
-  <div *ngIf="statistics.length > 0">
+  <div *ngIf="latestData.length > 0">
     <div class="flex-container">
       <mat-card class="first-card">
         <mat-card-title class="title">
-          <h3>{{ statistics[0].name.replace('_', ' ') }} <a *ngIf="statisticType == 'regionstatistics'"> -
-              {{currentTimes[0]}}</a></h3>
+          <h3>{{ latestData[0].name.replace('_', ' ') }}</h3>
         </mat-card-title>
         <mat-card-content>
           <div class="stat">
-            <p>Total Players: <span [countUp]="statistics[0].total_players"
-                [options]="{ startVal: oldStatistics.length ? oldStatistics[0].total_players : 0, duration: 2 }"></span>
+            <p>Total Players: <span [countUp]="latestData[0].total_players"></span>
             </p>
           </div>
           <div class="stat">
-            <p>Total Servers: <span [countUp]="statistics[0].total_servers"
-                [options]="{ startVal: oldStatistics.length ? oldStatistics[0].total_servers : 0, duration: 2 }"></span>
+            <p>Total Servers: <span [countUp]="latestData[0].total_servers"></span>
             </p>
           </div>
         </mat-card-content>
-        <app-live-graph *ngIf="statistics[0]" [statisticType]="statisticType" [filter]="statistics[0].name"></app-live-graph>
+        <app-live-graph *ngIf="latestData[0]" [chartData]="chartData[latestData[0].name]"></app-live-graph>
         <mat-card-footer class="footer">
-          <p>{{ getRelativeTime(statistics[0].timestamp) }}</p>
+          <p>{{ getRelativeTime(latestData[0].timestamp) }}</p>
         </mat-card-footer>
       </mat-card>
     </div>
@@ -28,30 +25,27 @@
   <div class="card-container">
     <div fxLayout="row wrap" fxLayoutGap="1rem grid">
       <div
-      fxFlex="calc(100%/3)"
-      fxFlex.xs="100%"
-      fxFlex.sm="50%"
-      *ngFor="let stat of statistics.slice(1); index as i; trackBy: trackByFn">
+      fxFlex.gt-md="calc(100%/3)"
+      fxFlex.gt-sm="50%"
+      fxFlex.lt-md="100%"
+      *ngFor="let stat of latestData.slice(1); index as i; trackBy: trackByFn">
         <div class="flex-container">
   
           <mat-card class="card">
             <mat-card-title class="title">
-              <h3>{{ stat.name.replace('_', ' ') }} <a *ngIf="statisticType == 'regionstatistics'"> - {{currentTimes[i +
-                  1]}}</a></h3>
+              <h3>{{ stat.name.replace('_', ' ') }}</h3>
             </mat-card-title>
             <mat-card-content>
               <div class="stat">
-                <p>Total Players: <span [countUp]="stat.total_players"
-                    [options]="{ startVal: oldStatistics.length ? oldStatistics[i + 1].total_players : 0, duration: 2 }"></span>
+                <p>Total Players: <span [countUp]="stat.total_players"></span>
                 </p>
               </div>
               <div class="stat">
-                <p>Total Servers: <span [countUp]="stat.total_servers"
-                    [options]="{ startVal: oldStatistics.length ? oldStatistics[i + 1].total_servers : 0, duration: 2 }"></span>
+                <p>Total Servers: <span [countUp]="stat.total_servers"></span>
                 </p>
               </div>
             </mat-card-content>
-            <app-live-graph [statisticType]="statisticType" [filter]="stat.name"></app-live-graph>
+            <app-live-graph [chartData]="chartData[stat.name]"></app-live-graph>
             <mat-card-footer class="footer">
               <p>{{ getRelativeTime(stat.timestamp) }}</p>
             </mat-card-footer>

@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ['192.168.3.14', 'localhost', '127.0.0.1', 'api.battlebitstats.x
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -28,7 +29,9 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'battlebit',
-    'corsheaders'
+    'corsheaders',
+    'channels',
+    'channels_redis'
 ]
 
 MIDDLEWARE = [
@@ -61,7 +64,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.asgi.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis://redis:6379/0')],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -76,7 +88,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -124,7 +135,8 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_BROKER_URL = f'redis://{os.getenv("REDIS_HOST")}:{os.getenv("REDIS_PORT")}/0'
+CELERY_BROKER_URL = f'redis://redis:6379/0'
+BROKER_URL = 'redis://redis:6379/0'
 
 # CORS 
 # TODO: Switch to specified allowed origins
