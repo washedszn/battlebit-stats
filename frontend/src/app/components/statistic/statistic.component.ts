@@ -21,7 +21,6 @@ export class StatisticComponent implements OnInit {
   public gridListCols = 2;
   public rowHeight!: string;
   public currentTimes = Array();
-  public oldStatistics = Array();
   public chartData = Object();
   public latestData = Array();
 
@@ -43,28 +42,6 @@ export class StatisticComponent implements OnInit {
         next: (msgEvent: MessageEvent) => {
           let newData = JSON.parse(msgEvent.data);
 
-          // store latest data for component to use
-          if (this.latestData.find((e: LatestData) => e.name === newData.name)) {            
-            this.latestData = this.latestData.map((e: LatestData) => {
-              if (e.name === newData.name) {                
-                let newValues = newData.data[newData.data.length - 1];
-                return {
-                  ...e,
-                  ...newValues
-                }
-              }
-              return e;
-            });            
-          } else {            
-            this.latestData.push({
-              name: newData.name,
-              ...newData.data[newData.data.length - 1]
-            })
-          }
-
-          // sort latest data of highest amount of total players
-          this.latestData = this.latestData.sort((a: LatestData, b: LatestData) => b.total_players - a.total_players)
-
           // Handle data going to the live-graph component
           if (!this.chartData[`${newData.name}`]) {
             // set initial data
@@ -82,6 +59,32 @@ export class StatisticComponent implements OnInit {
               return new Date(e.timestamp) >= oneHourAgoFromLastElement;
             });
           }
+
+          // store latest data for component to use
+          if (this.latestData.find((e: LatestData) => e.name === newData.name)) {
+            this.latestData = this.latestData.map((e: LatestData) => {
+              if (e.name === newData.name) {
+                let newValues = newData.data[newData.data.length - 1];
+                return {
+                  ...e,
+                  ...newValues,
+                  player_difference: newData.data[newData.data.length - 1].total_players - this.chartData[`${newData.name}`][0].total_players,
+                  server_difference: newData.data[newData.data.length - 1].total_servers - this.chartData[`${newData.name}`][0].total_servers,
+                }
+              }
+              return e;
+            });
+          } else {
+            this.latestData.push({
+              name: newData.name,
+              player_difference: newData.data[newData.data.length - 1].total_players - newData.data[0].total_players,
+              server_difference: newData.data[newData.data.length - 1].total_servers - newData.data[0].total_servers,
+              ...newData.data[newData.data.length - 1]
+            })
+          }
+          
+          // sort latest data of highest amount of total players
+          this.latestData = this.latestData.sort((a: LatestData, b: LatestData) => b.total_players - a.total_players)
         },
         error: err => console.error('ws error', err),
         complete: () => console.log('ws connection closed')

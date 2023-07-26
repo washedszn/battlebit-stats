@@ -5,16 +5,39 @@
         <mat-card-title class="title">
           <h3>{{ latestData[0].name.replace('_', ' ') }}</h3>
         </mat-card-title>
-        <mat-card-content>
-          <div class="stat">
-            <p>Total Players: <span [countUp]="latestData[0].total_players"></span>
-            </p>
+        <mat-card-content fxLayout="row" fxLayout.lt-sm="column" fxLayoutAlign="space-around center">
+          <div class="grid-item stat-box">
+            <div class="stat-content"  
+            matTooltip="{{latestData[0].player_difference >= 0 ? (latestData[0].player_difference | number) + ' more players over the last hour' : ((-latestData[0].player_difference | number) + ' less players over the last hour')}}">
+                            <span class="player-count">Players: <span [countUp]="latestData[0].total_players"></span></span>
+              &nbsp;
+              <span class="diff" 
+                    [ngClass]="{ 'green': latestData[0].player_difference >= 0, 
+                                 'red': latestData[0].player_difference < 0 }">
+                {{ latestData[0].player_difference | number }} 
+                <mat-icon [ngStyle]="{ 'transform': latestData[0].player_difference >= 0 ? 'rotate(270deg)' : 'rotate(90deg)' }">
+                  arrow_right
+                </mat-icon>
+              </span>
+            </div>
           </div>
-          <div class="stat">
-            <p>Total Servers: <span [countUp]="latestData[0].total_servers"></span>
-            </p>
+          <div class="grid-item stat-box">
+            <div class="stat-content"  
+            matTooltip="{{latestData[0].server_difference >= 0 ? (latestData[0].server_difference | number) + ' more servers over the last hour' : ((-latestData[0].server_difference | number) + ' less servers over the last hour')}}">
+                     <span class="server-count">Servers: <span [countUp]="latestData[0].total_servers"></span></span>
+              &nbsp;
+              <span class="diff" 
+                    [ngClass]="{ 'green': latestData[0].server_difference >= 0, 
+                                 'red': latestData[0].server_difference < 0 }">
+                {{ latestData[0].server_difference | number }}
+                <mat-icon [ngStyle]="{ 'transform': latestData[0].server_difference >= 0 ? 'rotate(270deg)' : 'rotate(90deg)' }">
+                  arrow_right
+                </mat-icon>
+              </span>
+            </div>
           </div>
         </mat-card-content>
+        
         <app-live-graph *ngIf="latestData[0]" [chartData]="chartData[latestData[0].name]"></app-live-graph>
         <mat-card-footer class="footer">
           <p>{{ getRelativeTime(latestData[0].timestamp) }}</p>
@@ -24,25 +47,44 @@
   </div>
   <div class="card-container">
     <div fxLayout="row wrap" fxLayoutGap="1rem grid">
-      <div
-      fxFlex.gt-md="calc(100%/3)"
-      fxFlex.gt-sm="50%"
-      fxFlex.lt-md="100%"
-      *ngFor="let stat of latestData.slice(1); index as i; trackBy: trackByFn">
+      <div fxFlex.gt-md="calc(100%/3)" fxFlex.gt-sm="50%" fxFlex.lt-md="100%"
+        *ngFor="let stat of latestData.slice(1); index as i; trackBy: trackByFn">
         <div class="flex-container">
-  
+
           <mat-card class="card">
             <mat-card-title class="title">
               <h3>{{ stat.name.replace('_', ' ') }}</h3>
             </mat-card-title>
-            <mat-card-content>
-              <div class="stat">
-                <p>Total Players: <span [countUp]="stat.total_players"></span>
-                </p>
+            <mat-card-content fxLayout="row" fxLayout.lt-sm="column" fxLayoutAlign="space-around center">
+              <div class="grid-item stat-box">
+                <div class="stat-content"  
+                matTooltip="{{stat.player_difference >= 0 ? (stat.player_difference | number) + ' more players over the last hour' : ((-stat.player_difference | number) + ' less players over the last hour')}}">
+                      <span class="player-count">Players: <span [countUp]="stat.total_players"></span></span>
+                  &nbsp;
+                  <span class="diff" [ngClass]="{ 'green': stat.player_difference >= 0, 
+                    'red': stat.player_difference < 0 }">
+                    <span [countUp]="stat.player_difference"></span>
+                    <mat-icon
+                      [ngStyle]="{ 'transform': stat.player_difference >= 0 ? 'rotate(270deg)' : 'rotate(90deg)' }">
+                      arrow_right
+                    </mat-icon>
+                  </span>
+                </div>
               </div>
-              <div class="stat">
-                <p>Total Servers: <span [countUp]="stat.total_servers"></span>
-                </p>
+              <div class="grid-item stat-box">
+                <div class="stat-content"  
+                matTooltip="{{stat.server_difference >= 0 ? (stat.server_difference | number) + ' more servers over the last hour' : ((-stat.server_difference | number) + ' less servers over the last hour')}}">
+                      <span class="server-count">Servers: <span [countUp]="stat.total_servers"></span></span>
+                  &nbsp;
+                  <span class="diff" [ngClass]="{ 'green': stat.server_difference >= 0, 
+                               'red': stat.server_difference < 0 }">
+                    <span [countUp]="stat.server_difference"></span>
+                    <mat-icon
+                      [ngStyle]="{ 'transform': stat.server_difference >= 0 ? 'rotate(270deg)' : 'rotate(90deg)' }">
+                      arrow_right
+                    </mat-icon>
+                  </span>
+                </div>
               </div>
             </mat-card-content>
             <app-live-graph [chartData]="chartData[stat.name]"></app-live-graph>

@@ -13,6 +13,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { CountUpModule } from 'ngx-countup';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -49,7 +51,9 @@ import { ServerStatisticComponent } from './components/server-statistic/server-s
     FlexLayoutModule,
     MatDividerModule,
     MatMenuModule,
+    MatTooltipModule,
     MatIconModule,
+    MatChipsModule,
     CountUpModule,
     MatGridListModule,
     BrowserAnimationsModule,

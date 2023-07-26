@@ -1,3 +1,43 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    gap: 16px;
+}
+
+.grid-item {
+    text-align: center;
+}
+
+.stat-box {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border: 1px solid #575757;
+    border-radius: 4px;
+}
+
+.stat-content {
+    display: inline-flex;
+    align-items: center;
+}
+
+.green {
+    color: #008000;
+}
+
+.red {
+    color: #FF0000;
+}
+
+.diff {
+    display: flex;
+    align-items: center;
+}
+
+
 .flex-container {
     display: flex;
     flex-direction: column;
