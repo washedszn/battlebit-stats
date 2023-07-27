@@ -141,3 +141,10 @@ class GameModeStatistics(BaseStatistics):
 
 class DayNightStatistics(BaseStatistics):
     pass
+
+class PlayerStatistics(models.Model):
+    id = models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField()
+    region = models.CharField(max_length=30)
+    min_players = models.IntegerField()
+    max_players = models.IntegerField()

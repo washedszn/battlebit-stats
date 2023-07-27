@@ -71,6 +71,7 @@ services:
     depends_on:
       - db
       - redis
+      - celery-worker
     env_file:
       - ./backend/.env
 
