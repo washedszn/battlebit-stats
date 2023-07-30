@@ -44,7 +44,7 @@ class StatisticsConsumer(AsyncJsonWebsocketConsumer):
         # Group data by game mode name
         grouped_data = {}
         for item in data:
-            timestamp = item['timestamp'].strftime('%Y-%m-%dT%H:%M:%S')  # Convert datetime to string
+            timestamp = item['timestamp'].astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # Convert datetime to string
             if item['name'] in grouped_data:
                 grouped_data[item['name']].append({
                     'timestamp': timestamp,

@@ -15,6 +15,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDateFnsModule } from '@angular/material-date-fns-adapter';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -28,6 +32,7 @@ import { MapSizesComponent } from './views/map-sizes/map-sizes.component';
 import { GameModesComponent } from './views/game-modes/game-modes.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServerStatisticComponent } from './components/server-statistic/server-statistic.component';
+import { FloatingBarChartComponent } from './components/floating-bar-chart/floating-bar-chart.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +45,7 @@ import { ServerStatisticComponent } from './components/server-statistic/server-s
     StatisticComponent,
     LiveGraphComponent,
     ServerStatisticComponent,
+    FloatingBarChartComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,6 +61,10 @@ import { ServerStatisticComponent } from './components/server-statistic/server-s
     MatIconModule,
     MatChipsModule,
     CountUpModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDateFnsModule,
     MatGridListModule,
     BrowserAnimationsModule,
   ],

@@ -101,7 +101,7 @@ export class StatisticComponent implements OnInit {
     this.apiService.disconnect();
   }
 
-  getRelativeTime(timestamp: string): string {
+  getRelativeTime(timestamp: string): string {    
     return `Last updated: ${new Date(timestamp).toLocaleString()}`;
   }
 

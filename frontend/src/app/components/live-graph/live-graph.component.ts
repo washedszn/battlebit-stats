@@ -85,7 +85,7 @@ export class LiveGraphComponent implements AfterViewInit, OnChanges {
   }
 
   updateChart() {
-    if (!this.chartData || this.chartData.length === 0) return;
+    if (!this.chartData || this.chartData.length === 0 || !this.chart) return;
   
     const sortedData = [...this.chartData].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     const latestTimestamp = new Date(sortedData[0].timestamp).getTime();

@@ -6,18 +6,18 @@ from .models import PlayerStatistics
 
 class PlayerStatisticsView(View):
     def get(self, request, *args, **kwargs):
-        # Check if start_datetime is a datetime string or region
-        try:
-            start_datetime = datetime.strptime(kwargs.get('start_datetime', ''), '%Y-%m-%d %H:%M:%S')
-            region = kwargs.get('region')
-        except ValueError:
-            start_datetime = timezone.now() - timedelta(days=1)
-            region = kwargs.get('start_datetime')
+        region = kwargs.get('region')
+        if 'start_datetime' in kwargs and kwargs['start_datetime']:
+            start_datetime = datetime.strptime(kwargs['start_datetime'], '%Y-%m-%d %H:%M:%S')
+            start_datetime = start_datetime.replace(minute=0, second=0, microsecond=0)
+        else:
+            start_datetime = (timezone.now() - timedelta(days=1)).replace(minute=0, second=0, microsecond=0)
 
         if 'end_datetime' in kwargs and kwargs['end_datetime']:
             end_datetime = datetime.strptime(kwargs['end_datetime'], '%Y-%m-%d %H:%M:%S')
+            end_datetime = end_datetime.replace(minute=0, second=0, microsecond=0)
         else:
-            end_datetime = timezone.now()  # get data up to now if end_datetime is not given
+            end_datetime = timezone.now().replace(minute=0, second=0, microsecond=0)
 
         if region:
             stats_list = PlayerStatistics.objects.filter(timestamp__range=[start_datetime, end_datetime], region=region)
@@ -26,13 +26,13 @@ class PlayerStatisticsView(View):
 
         stats_data = []
         for region in stats_list.values_list('region', flat=True).distinct():
-            region_stats = stats_list.filter(region=region)
+            region_stats = stats_list.filter(region=region).order_by('timestamp')
+            timestamps = list(region_stats.values_list('timestamp', flat=True))
             min_players = list(region_stats.values_list('min_players', flat=True))
             max_players = list(region_stats.values_list('max_players', flat=True))
             stats_data.append({
                 'name': region,
-                'start_date': start_datetime,
-                'end_date': end_datetime,
+                'timestamps': timestamps,
                 'min_players': min_players,
                 'max_players': max_players
             })
