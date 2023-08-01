@@ -184,4 +184,5 @@ def update_player_statistics():
         overall_max_players += max_players
 
     # Update or create a new 'all' record in PlayerStatistics with overall player statistics
-    update_or_create_statistic('all', overall_min_players, overall_max_players)
+    if (overall_max_players != 0 and overall_min_players != 0):
+        update_or_create_statistic('all', overall_min_players, overall_max_players)

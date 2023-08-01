@@ -58,12 +58,7 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
               title: function (context) {
                 const index = context[0]?.dataIndex;
                 const labels = context[0]?.chart?.data?.labels;
-                let timestampStr = '';
-                if (labels && index !== undefined) {
-                  const timestampDate = new Date(labels[index] as string);
-                  timestampStr = timestampDate.toLocaleString();
-                }
-                return `At ${timestampStr}, the player peaks were:`;
+                return `At ${labels?.[index]}, the player peaks were:`;
               },
               label: function (context) {
                 const dataset = context.dataset;
@@ -90,14 +85,25 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
   }
 
   updateChart() {
-    if (!this.chartData || !this.chart) return;
-
+    if (!this.chartData) return;
+  
+    // Create the chart instance if it does not exist
+    if (!this.chart) {
+      this.createChart();
+    }
+  
+    // Update chart data and labels
+    this.chart.data.labels = this.chartData.timestamps.map((e) => {
+      const timestampDate = new Date(e as string);
+      return timestampDate.toLocaleString();
+    });
     this.chart.data.datasets[0].data = this.chartData.min_players.map((min, index) => {
       return [min, this.chartData.max_players[index]];
     });
-
+  
+    // Update the chart
     this.chart.update('none');
-  }
+  }  
 
   resizeChart() {
     if (this.chart && this.chart.canvas && this.chart.canvas.parentNode != null) {

@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { BarChartData, ApiService } from 'src/app/services/api.service';
-import { Subscription, interval, startWith, switchMap } from 'rxjs';
+import { Subscription, Subject, interval, merge } from 'rxjs';
+import { startWith, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-servers',
@@ -9,22 +11,34 @@ import { Subscription, interval, startWith, switchMap } from 'rxjs';
   styleUrls: ['./servers.component.scss']
 })
 export class ServersComponent {
+  form!: FormGroup;
   private subscription!: Subscription;
   public chartData = Array<BarChartData>();
+  datetimeRange = '';
+  private dataRefreshTrigger = new Subject<void>();
 
-  constructor(private metaTagService: Meta, private titleService: Title, private apiService: ApiService) { }
+  constructor(private metaTagService: Meta, private titleService: Title, private apiService: ApiService, private fb: FormBuilder) { }
 
   ngOnInit() {
-    this.subscription = interval(60_000).pipe(
-      startWith(0),
-      switchMap(() => this.apiService.getPlayerStatistics())
+    this.form = this.fb.group({
+      datetime: ['']
+    });
+
+    // Create an observable that emits a value every 60 seconds
+    const interval$ = interval(60_000).pipe(startWith(0));
+
+    // Merge the interval observable with the subject
+    const merged$ = merge(this.dataRefreshTrigger, interval$);
+
+    this.subscription = merged$.pipe(
+      switchMap(() => this.apiService.getPlayerStatistics(this.datetimeRange))
     ).subscribe({
       next: (data) => {
         data.sort((a: BarChartData, b: BarChartData) => {
           const maxA = Math.max(...a.max_players);
           const maxB = Math.max(...b.max_players);
           return maxB - maxA; // this will sort in descending order
-        });
+        });        
         this.chartData = data;
       }
     })
@@ -42,6 +56,8 @@ export class ServersComponent {
       {name: 'twitter:description', content: 'Real-time statistics for servers in BattleBit Remastered.'},
       {name: 'twitter:image', content: 'https://battlebitstats.xyz/assets/images/general.png'},
     ]);
+
+    this.refreshData();  // Call this to trigger the initial data load
   }
 
   ngOnDestroy(): void {
@@ -50,5 +66,15 @@ export class ServersComponent {
 
   trackByFn(index: number, config: any): string {
     return `${config.name}`;
+  }
+
+  onDateTimeSelected(range: {start: string, end: string}): void {
+    this.datetimeRange = `${range.start}/${range.end}`;
+    this.refreshData();  // Call this to refresh the data when the datetime changes
+  }
+
+  // Call this method to trigger a data refresh
+  refreshData(): void {
+    this.dataRefreshTrigger.next();
   }
 }

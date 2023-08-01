@@ -51,8 +51,8 @@ export class ApiService {
     }
   }
 
-  public getPlayerStatistics(): Observable<any> {
-    return this.http.get<any>(`${environment.API_URL}/playerstatistics/`)
+  public getPlayerStatistics(range: string): Observable<any> {
+    return this.http.get<any>(`${environment.API_URL}/playerstatistics/${range}`)
       .pipe(
         catchError(this.handleError)
       );

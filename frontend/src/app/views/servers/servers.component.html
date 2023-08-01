@@ -1,10 +1,15 @@
 <div class="card-container">
-    <div *ngFor="let chart of chartData; index as i; trackBy: trackByFn">
-      <mat-card class="card">
-        <mat-card-title class="title">
-          <h3>{{ chart.name.replace('_', ' ') }}</h3>
-        </mat-card-title>
-        <app-floating-bar-chart *ngIf="chartData" [chartData]="chart"></app-floating-bar-chart>
-      </mat-card>
-    </div>
+  <form [formGroup]="form">
+    <app-datetime-range-picker 
+      (dateTimeSelected)="onDateTimeSelected($event)">
+    </app-datetime-range-picker>
+  </form>
+  <div *ngFor="let chart of chartData; index as i; trackBy: trackByFn">
+    <mat-card class="card">
+      <mat-card-title class="title">
+        <h3>{{ chart.name.replace('_', ' ') }}</h3>
+      </mat-card-title>
+      <app-floating-bar-chart *ngIf="chartData" [chartData]="chart"></app-floating-bar-chart>
+    </mat-card>
+  </div>
 </div>

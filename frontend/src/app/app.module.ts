@@ -19,6 +19,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDateFnsModule } from '@angular/material-date-fns-adapter';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -33,6 +34,7 @@ import { GameModesComponent } from './views/game-modes/game-modes.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServerStatisticComponent } from './components/server-statistic/server-statistic.component';
 import { FloatingBarChartComponent } from './components/floating-bar-chart/floating-bar-chart.component';
+import { DatetimeRangePickerComponent } from './components/datetime-range-picker/datetime-range-picker.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +48,7 @@ import { FloatingBarChartComponent } from './components/floating-bar-chart/float
     LiveGraphComponent,
     ServerStatisticComponent,
     FloatingBarChartComponent,
+    DatetimeRangePickerComponent,
   ],
   imports: [
     BrowserModule,
@@ -63,12 +66,13 @@ import { FloatingBarChartComponent } from './components/floating-bar-chart/float
     CountUpModule,
     MatDatepickerModule,
     MatFormFieldModule,
+    ReactiveFormsModule,
+    FormsModule,
     MatInputModule,
     MatDateFnsModule,
     MatGridListModule,
     BrowserAnimationsModule,
   ],
-  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

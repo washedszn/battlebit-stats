@@ -1,0 +1,10 @@
+<div class="date-range-picker">
+    <div class="date-range-field">
+        <label>Start</label>
+        <input type="datetime-local" [(ngModel)]="datetimeRange.start" (change)="updateValue()" class="date-input">
+    </div>
+    <div class="date-range-field">
+        <label>End</label>
+        <input type="datetime-local" [(ngModel)]="datetimeRange.end" (change)="updateValue()" class="date-input">
+    </div>
+</div>
