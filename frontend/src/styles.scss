@@ -1,7 +1,40 @@
 @import '@angular/material/theming';
 @include mat-core();
 
-$primary: mat-palette($mat-green, 800); // dark olive green
+$custom-blue-green: (
+  50: #e0f7fa,
+  100: #b2ebf2,
+  200: #80deea,
+  300: #4dd0e1,
+  400: #26c6da,
+  500: #22cfcf,
+  600: #1de9b6,
+  700: #1de9b6,
+  800: #1de9b6,
+  900: #1de9b6,
+  A100: #a7ffeb,
+  A200: #64ffda,
+  A400: #1de9b6,
+  A700: #00bfa5,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+);
+
+$primary: mat-palette($custom-blue-green);
 $accent: mat-palette($mat-light-green, A200, A100, A400); // lighter green
 $warn: mat-palette($mat-red, 900); // dark red
 

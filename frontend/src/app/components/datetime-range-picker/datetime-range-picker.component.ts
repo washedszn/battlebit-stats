@@ -1,75 +1,66 @@
-import { Component, OnInit, AfterViewInit, Output, EventEmitter, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-datetime-range-picker',
   templateUrl: './datetime-range-picker.component.html',
-  styleUrls: ['./datetime-range-picker.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DatetimeRangePickerComponent),
-      multi: true
-    }
-  ]
+  styleUrls: ['./datetime-range-picker.component.scss']
 })
-export class DatetimeRangePickerComponent implements OnInit, ControlValueAccessor {
+export class DatetimeRangePickerComponent implements OnInit {
 
-  @Output() dateTimeSelected: EventEmitter<{start: string, end: string}> = new EventEmitter<{start: string, end: string}>();
+  @Output() dateTimeSelected: EventEmitter<{ start: string, end: string }> = new EventEmitter<{ start: string, end: string }>();
 
-  datetimeRange = { start: '', end: '' };
+  range = new FormGroup({
+    start: new FormControl<Date | null>(null),
+    end: new FormControl<Date | null>(null),
+  });
+  maxEndDate!: Date;
+  minEndDate!: Date;
 
   constructor() { }
 
   ngOnInit(): void {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = ('0' + (now.getMonth() + 1)).slice(-2);
-    const day = ('0' + now.getDate()).slice(-2);
-    const hour = ('0' + now.getHours()).slice(-2);
-    
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
-    const startYear = yesterday.getFullYear();
-    const startMonth = ('0' + (yesterday.getMonth() + 1)).slice(-2);
-    const startDay = ('0' + yesterday.getDate()).slice(-2);
-    const startHour = ('0' + yesterday.getHours()).slice(-2);
+  
+    this.range.setValue({ start: yesterday, end: now });
+  
+    this.range.get('start')?.valueChanges.subscribe(val => {      
+      if (val) {
+        const maxEndDate = new Date(val);
+        maxEndDate.setDate(maxEndDate.getDate() + 7);
+        const minEndDate = new Date(val);
+        minEndDate.setDate(minEndDate.getDate() + 1);
 
-    this.datetimeRange.start = `${startYear}-${startMonth}-${startDay}T${startHour}:00`;
-    this.datetimeRange.end = `${year}-${month}-${day}T${hour}:00`;
+        this.minEndDate = minEndDate;
+        this.maxEndDate = maxEndDate;
+      }
+    });
   }
 
   updateValue() {
-    const start = new Date(this.datetimeRange.start);
-    const end = new Date(this.datetimeRange.end);
+    const start = this.range.get('start')?.value;
+    const end = this.range.get('end')?.value;
     
-    const startUTC = this.formatDatetime(start);
-    const endUTC = this.formatDatetime(end);
-    
-    this.dateTimeSelected.emit({ start: startUTC, end: endUTC });
+    if (start && end) {      
+      const startUTC = this.formatDatetime(start);
+      const endUTC = this.formatDatetime(end);
+
+      this.dateTimeSelected.emit({ start: startUTC, end: endUTC });
+    }
   }
 
   private formatDatetime(date: Date): string {
-    const year = date.getUTCFullYear();
-    const month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-    const day = ('0' + date.getUTCDate()).slice(-2);
-    const hour = ('0' + date.getUTCHours()).slice(-2);
-    return `${year}-${month}-${day} ${hour}:00:00`;
-  }
-
-  // ControlValueAccessor implementation
-  onChange: any = () => {};
-  onTouch: any = () => {};
-
-  writeValue(obj: any): void {
-    this.datetimeRange = obj || { start: '', end: '' };
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouch = fn;
+    if (date) {
+      const year = date.getUTCFullYear();
+      const month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+      const day = ('0' + date.getUTCDate()).slice(-2);
+      return `${year}-${month}-${day}`;
+    } else {
+      // Handle null or undefined date here.
+      console.error('Received null or undefined date.');
+      return '';
+    }
   }
 }

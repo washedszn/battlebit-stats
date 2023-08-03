@@ -69,7 +69,7 @@ export class ServersComponent {
   }
 
   onDateTimeSelected(range: {start: string, end: string}): void {
-    this.datetimeRange = `${range.start}/${range.end}`;
+    this.datetimeRange = `${range.start} 00:00:00/${range.end} 23:00:00`;    
     this.refreshData();  // Call this to refresh the data when the datetime changes
   }
 

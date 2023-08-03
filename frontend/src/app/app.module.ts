@@ -15,11 +15,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDateFnsModule } from '@angular/material-date-fns-adapter';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -64,14 +64,14 @@ import { DatetimeRangePickerComponent } from './components/datetime-range-picker
     MatIconModule,
     MatChipsModule,
     CountUpModule,
-    MatDatepickerModule,
     MatFormFieldModule,
     ReactiveFormsModule,
     FormsModule,
     MatInputModule,
-    MatDateFnsModule,
     MatGridListModule,
     BrowserAnimationsModule,
+    MatNativeDateModule,
+    MatDatepickerModule,
   ],
   bootstrap: [AppComponent]
 })

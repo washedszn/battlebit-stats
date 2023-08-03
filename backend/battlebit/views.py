@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.views import View
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -18,6 +18,10 @@ class PlayerStatisticsView(View):
             end_datetime = end_datetime.replace(minute=0, second=0, microsecond=0)
         else:
             end_datetime = timezone.now().replace(minute=0, second=0, microsecond=0)
+
+        # Check if end_datetime exceeds start_datetime by 7 days
+        if end_datetime - start_datetime > timedelta(days=7):
+            return HttpResponseBadRequest("Range cannot be larger than 7 days")
 
         if region:
             stats_list = PlayerStatistics.objects.filter(timestamp__range=[start_datetime, end_datetime], region=region)

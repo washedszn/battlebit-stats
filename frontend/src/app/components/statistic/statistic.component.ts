@@ -2,6 +2,7 @@ import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { ApiService, ChartData } from '../../services/api.service';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { trigger, transition, style, animate, query, stagger, keyframes } from '@angular/animations';
 
 interface LatestData {
   name: string,

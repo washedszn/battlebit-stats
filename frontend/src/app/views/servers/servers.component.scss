@@ -7,6 +7,40 @@
     gap: 16px;
 }
 
+.form-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0 -19px 16px;
+
+    p {
+        font-style: italic;
+        color: rgb(236, 236, 236);
+        margin: 0 16px -19px 0;
+    }
+}
+
+@media (max-width: 620px) {
+    .form-content p {
+      display: none;
+    }
+  }
+  
+
+.text {
+    margin: 16px 16px 0 16px;
+}
+
+p {
+    color: rgb(236, 236, 236);
+}
+
+a {
+    text-decoration: underline;
+    font-weight: 900;
+    color: white;
+  }
+
 .card {
     width: 100%;
     box-sizing: border-box;

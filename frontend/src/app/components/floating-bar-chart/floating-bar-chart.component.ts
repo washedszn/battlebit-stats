@@ -1,8 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, Input, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { BarChartData } from 'src/app/services/api.service';
-import { eachHourOfInterval, format } from 'date-fns';
-import 'chartjs-adapter-date-fns';
 
 Chart.register(...registerables);
 
@@ -31,12 +29,16 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
   }
 
   createChart() {
+    if (!this.chartCanvas) {
+      console.log('Cannot create chart because canvas is not available yet');
+      return;
+    }
+
     this.chart = new Chart(this.chartCanvas.nativeElement, {
       type: 'bar',
       data: {
-        labels: this.chartData.timestamps.map((e) => {
-          const timestampDate = new Date(e as string);
-          return timestampDate.toLocaleString();
+        labels: this.chartData.timestamps.map(e => {          
+          return new Date(e)
         }),
         datasets: [{
           label: 'Min & Max player count',
@@ -58,6 +60,7 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
               title: function (context) {
                 const index = context[0]?.dataIndex;
                 const labels = context[0]?.chart?.data?.labels;
+                
                 return `At ${labels?.[index]}, the player peaks were:`;
               },
               label: function (context) {
@@ -74,8 +77,42 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
           }
         },
         scales: {
+          x: {
+            ticks: {
+              autoSkip: true,
+              callback: function(value, index, values) {
+                // Check if `this.chart` and its properties are defined
+                if (!this || !this.chart || !this.chart.data || !this.chart.data.labels) {
+                  return null;
+                }
+              
+                // Access the original date value from your data
+                const date = new Date(this.chart.data.labels[index] as string);
+              
+                // Get the previous date value if it exists
+                const previousDate = index > 0 ? new Date(this.chart.data.labels[index - 1] as string) : null;
+              
+                // Only return the label for the first index, the last index, and when the day changes
+                if (index === 0 || index === this.chart.data.labels.length - 1 || !previousDate || date.getDate() !== previousDate.getDate()) {
+                  // Format the date as "DD-MM HH:mm"
+                  const day = ('0' + date.getDate()).slice(-2);
+                  const month = ('0' + (date.getMonth() + 1)).slice(-2);
+                  const hours = ('0' + date.getHours()).slice(-2);
+                  const minutes = ('0' + date.getMinutes()).slice(-2);
+              
+                  return `${day}-${month} ${hours}:${minutes}`;
+                }
+              
+                // Return null for other labels
+                return null;
+              }              
+            }
+          },
           y: {
             beginAtZero: false,
+            grid: {
+              display: true
+            }
           },
         },
         responsive: true,
@@ -85,25 +122,24 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
   }
 
   updateChart() {
-    if (!this.chartData) return;
-  
+    if (!this.chartData || !this.chartCanvas) return;
+
     // Create the chart instance if it does not exist
     if (!this.chart) {
       this.createChart();
     }
-  
+
     // Update chart data and labels
-    this.chart.data.labels = this.chartData.timestamps.map((e) => {
-      const timestampDate = new Date(e as string);
-      return timestampDate.toLocaleString();
+    this.chart.data.labels = this.chartData.timestamps.map((e) => {    
+      return new Date(e)
     });
     this.chart.data.datasets[0].data = this.chartData.min_players.map((min, index) => {
       return [min, this.chartData.max_players[index]];
     });
-  
+
     // Update the chart
     this.chart.update('none');
-  }  
+  }
 
   resizeChart() {
     if (this.chart && this.chart.canvas && this.chart.canvas.parentNode != null) {
