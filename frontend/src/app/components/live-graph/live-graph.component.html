@@ -1,1 +1,26 @@
-<canvas #chartCanvas></canvas>
+<div class="chart-container" style="position: relative;">
+  <div class="time-range-container" style="position: absolute; right: 0; top: 0;">
+    <button class="time-range-option" 
+            [class.selected]="timeRange === 60 * 1000" 
+            (click)="setTimeRange(60 * 1000)" 
+            matTooltip="Last 1 minute"
+            aria-label="Last 1 minute">
+      1m
+    </button>
+    <button class="time-range-option" 
+            [class.selected]="timeRange === 10 * 60 * 1000" 
+            (click)="setTimeRange(10 * 60 * 1000)" 
+            matTooltip="Last 10 minutes"
+            aria-label="Last 10 minutes">
+      10m
+    </button>
+    <button class="time-range-option" 
+            [class.selected]="timeRange === 60 * 60 * 1000" 
+            (click)="setTimeRange(60 * 60 * 1000)" 
+            matTooltip="Last 60 minutes"
+            aria-label="Last 60 minutes">
+      60m
+    </button>
+  </div>
+  <canvas #chartCanvas></canvas>
+</div>

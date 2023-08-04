@@ -1,1 +1,46 @@
-<app-server-statistic></app-server-statistic>
+<div class="container">
+  <p class="text">
+    As an avid player of BattleBit Remastered, I was excited to discover the release of their public API for server
+    stats.
+    I've since built this application to see how the game is performing, and to understand the playerbase better with
+    real-time statistics tracking.
+  </p>
+  <p class="text">
+    The homepage provides an overview of the playerbase across different regions, aggregating min/max player count data
+    every hour.
+    Other pages like <a routerLink="/regions"><b>Regions</b></a>, <a routerLink="/maps"><b>Maps</b></a>, <a
+      routerLink="/map-sizes"><b>Map Sizes</b></a>, and <a routerLink="/game-modes"><b>Game Modes</b></a> provide a
+    focus on real-time stats, updated every 2.5 seconds and optional charts for the last hour, last 10 minutes or last
+    minute.
+  </p>
+  <p class="text">
+    If you have a feature request create an issue on the <a
+      href="https://github.com/washedszn/battlebit-stats/issues/new" target="_blank">repository</a> or contact me on <a
+      href="https://discordapp.com/users/washedh" target="_blank">Discord</a>.
+  </p>
+
+  <form class="form-container" [formGroup]="form">
+    <div class="form-content">
+      <app-datetime-range-picker (dateTimeSelected)="onDateTimeSelected($event)">
+      </app-datetime-range-picker>
+      <p>These charts are updated every 60 seconds</p>
+    </div>
+  </form>
+
+  <div *ngIf="isLoading" class="spinner-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading" class="card-container">
+    <div *ngFor="let chart of chartData; index as i; trackBy: trackByFn">
+      <mat-card class="card">
+        <mat-card-title class="title">
+          <h3>{{ chart.name.replace('_', ' ') }}</h3>
+        </mat-card-title>
+        <app-floating-bar-chart *ngIf="chartData" [chartData]="chart"></app-floating-bar-chart>
+      </mat-card>
+    </div>
+  </div>
+
+  <app-no-data *ngIf="chartData.length === 0 && !isLoading"></app-no-data>
+</div>

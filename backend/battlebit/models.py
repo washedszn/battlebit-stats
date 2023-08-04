@@ -94,7 +94,7 @@ class AggregatedServerStatistics(models.Model):
     
 class BaseStatistics(models.Model):
     batch_id = models.UUIDField(default=uuid.uuid4, editable=False)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
     total_players = models.IntegerField(default=0)
     total_servers = models.IntegerField(default=0)
@@ -113,11 +113,12 @@ class BaseStatistics(models.Model):
         data = {
             'name': self.name,
             'data': [{
-                'timestamp': self.timestamp.strftime('%Y-%m-%dT%H:%M:%S'), 
+                'timestamp': self.timestamp.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                 'total_players': self.total_players,
                 'total_servers': self.total_servers
             }]
         }
+
 
         async_to_sync(channel_layer.group_send)(
             model_name,
@@ -141,3 +142,10 @@ class GameModeStatistics(BaseStatistics):
 
 class DayNightStatistics(BaseStatistics):
     pass
+
+class PlayerStatistics(models.Model):
+    id = models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField()
+    region = models.CharField(max_length=30)
+    min_players = models.IntegerField()
+    max_players = models.IntegerField()

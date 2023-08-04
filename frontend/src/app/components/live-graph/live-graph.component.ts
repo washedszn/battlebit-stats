@@ -15,26 +15,19 @@ export class LiveGraphComponent implements AfterViewInit, OnChanges {
   @Input() public chartData = Array<ChartData>();
   public chart!: Chart;
 
+  public timeRange: number = 60 * 10 * 1000; // Default to 10 minutes
+
   constructor() { }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['chartData'] && changes['chartData'].currentValue) {
-      const newChartData = changes['chartData'].currentValue;
-      if (this.chart) {
-        this.chart.data.labels = newChartData.map((e: ChartData) => e.timestamp);
-        this.chart.data.datasets[0].data = newChartData.map((e: ChartData) => {
-          return {
-            x: new Date(e.timestamp).getTime(),
-            y: e.total_players
-          }
-        });
-        this.chart.update('none');                    
-      }
+      this.updateChart();
     }
-  }
+  }  
 
   ngAfterViewInit() {
     this.createChart();
+    this.updateChart();
     this.resizeChart();
   }
 
@@ -50,10 +43,13 @@ export class LiveGraphComponent implements AfterViewInit, OnChanges {
               y: e.total_players
             }
           }),
-          fill: false,
+          fill: true,
           pointRadius: 0,
           pointHitRadius: 0,
           borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.1)',
+          borderCapStyle: 'round',
+          borderWidth: 2,
           tension: 0.2,
           stepped: false,
           borderDash: []
@@ -67,23 +63,63 @@ export class LiveGraphComponent implements AfterViewInit, OnChanges {
         plugins: {
           legend: {
             display: false
-          },
-          decimation: {
-            algorithm: 'min-max',
-            enabled: true,
-            //samples: 300,
           }
         },
         scales: {
           x: {
             display: false,
             type: 'time',
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            }
           }
         },
         responsive: true,
         maintainAspectRatio: true
       }
     });
+  }
+
+  updateChart() {
+    if (!this.chartData || this.chartData.length === 0 || !this.chart) return;
+  
+    const sortedData = [...this.chartData].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const latestTimestamp = new Date(sortedData[0].timestamp).getTime();
+  
+    const filteredData = sortedData.filter((e: ChartData) =>
+      latestTimestamp - new Date(e.timestamp).getTime() <= this.timeRange
+    );
+  
+    this.chart.data.labels = filteredData.map((e: ChartData) => e.timestamp);
+    this.chart.data.datasets[0].data = filteredData.map((e: ChartData) => {
+      return {
+        x: new Date(e.timestamp).getTime(),
+        y: e.total_players
+      }
+    });
+  
+    // Get the max y value in the dataset
+    const maxY = Math.max(...filteredData.map(e => e.total_players));
+  
+    // Add a 10% padding to the max y value
+    const suggestedMax = maxY + maxY * 0.01;
+  
+    // Check if this.chart is defined and then set the new suggestedMax value for the chart
+    if (this.chart && this.chart.options && this.chart.options.scales && this.chart.options.scales['y']) {
+      (this.chart.options.scales['y'] as any).suggestedMax = suggestedMax;
+    }
+  
+    this.chart.update('none');
+  }
+
+  setTimeRange(range: number) {
+    this.timeRange = range;
+    this.updateChart();
   }
 
   resizeChart() {

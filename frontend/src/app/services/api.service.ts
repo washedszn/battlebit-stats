@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError, Subject, Observer } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
+export interface BarChartData {
+  name: string,
+  timestamps: Array<string>,
+  min_players: Array<number>,
+  max_players: Array<number>
+}
+
 export interface ChartData {
   timestamp: string;
   total_players: number;
@@ -44,16 +51,8 @@ export class ApiService {
     }
   }
 
-  // Soon to be deprecated
-  getLiveData(type: string, filter: string): Observable<any> {
-    return this.http.get<any>(`${environment.API_URL}/${type}/lasthour/${filter}`)
-      .pipe(
-        catchError(this.handleError)
-      );
-  }
-
-  getStatistics(type: string): Observable<any> {
-    return this.http.get<any>(`${environment.API_URL}/${type}/latestbatch`)
+  public getPlayerStatistics(range: string): Observable<any> {
+    return this.http.get<any>(`${environment.API_URL}/playerstatistics/${range}`)
       .pipe(
         catchError(this.handleError)
       );

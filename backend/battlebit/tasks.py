@@ -3,19 +3,20 @@ import uuid
 from collections import Counter
 from backend.celery import app
 from django.utils import timezone
+from django.db.models import Min, Max
 from datetime import timedelta
 from .models import (
+    PlayerStatistics,
     ServerStatistics,
     AggregatedServerStatistics,
     DayNightStatistics,
     MapSizeStatistics,
     MapStatistics,
     GameModeStatistics,
-    RegionStatistics
+    RegionStatistics,
 )
 from requests import RequestException
 from celery.utils.log import get_task_logger
-import time
 
 logger = get_task_logger(__name__)
 
@@ -138,70 +139,50 @@ def calculate_aggregates(stats, batch_id):
             total_players=day_night_players_counter[day_night],
             total_servers=server_count,
         )
-    
-    # Find the most and least common for each counter
-    most_used_map, most_used_map_count = map_counter.most_common(1)[0]
-    least_used_map, least_used_map_count = map_counter.most_common()[-1]
-    
-    most_used_map_size, most_used_map_size_count = map_size_counter.most_common(1)[0]
-    least_used_map_size, least_used_map_size_count = map_size_counter.most_common()[-1]
-    
-    most_used_game_mode, most_used_game_mode_count = game_mode_counter.most_common(1)[0]
-    least_used_game_mode, least_used_game_mode_count = game_mode_counter.most_common()[-1]
-    
-    most_used_region, most_used_region_count = region_counter.most_common(1)[0]
-    least_used_region, least_used_region_count = region_counter.most_common()[-1]
-    
-    most_common_time_of_day, most_common_time_of_day_count = day_night_counter.most_common(1)[0]
-    least_common_time_of_day, least_common_time_of_day_count = day_night_counter.most_common()[-1]
-    
-    # Create the aggregate statistics object
-    agg_stats = AggregatedServerStatistics(
-        batch_id=batch_id,
-        
-        total_players=sum(map_players_counter.values()),
-        total_maps=len(map_counter),
-        total_regions=len(region_counter),
-        total_map_sizes=len(map_size_counter),
-        
-        most_used_map=most_used_map,
-        most_used_map_count=most_used_map_count,
-        most_used_map_total_players=map_players_counter[most_used_map],
-        
-        least_used_map=least_used_map,
-        least_used_map_count=least_used_map_count,
-        least_used_map_total_players=map_players_counter[least_used_map],
-        
-        most_used_map_size=most_used_map_size,
-        most_used_map_size_count=most_used_map_size_count,
-        most_used_map_size_total_players=map_size_players_counter[most_used_map_size],
-        
-        least_used_map_size=least_used_map_size,
-        least_used_map_size_count=least_used_map_size_count,
-        least_used_map_size_total_players=map_size_players_counter[least_used_map_size],
-        
-        most_used_game_mode=most_used_game_mode,
-        most_used_game_mode_count=most_used_game_mode_count,
-        most_used_game_mode_total_players=game_mode_players_counter[most_used_game_mode],
-        
-        least_used_game_mode=least_used_game_mode,
-        least_used_game_mode_count=least_used_game_mode_count,
-        least_used_game_mode_total_players=game_mode_players_counter[least_used_game_mode],
-        
-        most_used_region=most_used_region,
-        most_used_region_count=most_used_region_count,
-        most_used_region_total_players=region_players_counter[most_used_region],
-        
-        least_used_region=least_used_region,
-        least_used_region_count=least_used_region_count,
-        least_used_region_total_players=region_players_counter[least_used_region],
-        
-        most_common_time_of_day=most_common_time_of_day,
-        most_common_time_of_day_count=most_common_time_of_day_count,
-        most_common_time_of_day_total_players=day_night_players_counter[most_common_time_of_day],
-        
-        least_common_time_of_day=least_common_time_of_day,
-        least_common_time_of_day_count=least_common_time_of_day_count,
-        least_common_time_of_day_total_players=day_night_players_counter[least_common_time_of_day],
+
+@app.task
+def update_player_statistics():
+    # Get the current datetime with minute, second and microsecond set to 0
+    current_timestamp = timezone.now().replace(minute=0, second=0, microsecond=0)
+
+    def update_or_create_statistic(region, min_players, max_players):
+        player_statistic, created = PlayerStatistics.objects.get_or_create(
+            timestamp=current_timestamp,
+            region=region,
+            defaults={
+                'min_players': min_players,
+                'max_players': max_players
+            },
+        )
+
+        if not created:  # if the object already existed, update min and max if necessary
+            if min_players < player_statistic.min_players:
+                player_statistic.min_players = min_players
+            if max_players > player_statistic.max_players:
+                player_statistic.max_players = max_players
+            player_statistic.save()
+
+    # Get the minimum and maximum player statistics for each region for the current hour
+    region_statistics = RegionStatistics.objects.filter(
+        timestamp__hour=current_timestamp.hour
+    ).values('name').annotate(
+        min_players=Min('total_players'),
+        max_players=Max('total_players')
     )
-    agg_stats.save()
+
+    # Update or create a new PlayerStatistics object for each region
+    overall_min_players = 0
+    overall_max_players = 0
+    for region_statistic in region_statistics:
+        region_name = region_statistic['name']
+        min_players = region_statistic['min_players']
+        max_players = region_statistic['max_players']
+
+        update_or_create_statistic(region_name, min_players, max_players)
+
+        overall_min_players += min_players
+        overall_max_players += max_players
+
+    # Update or create a new 'all' record in PlayerStatistics with overall player statistics
+    if (overall_max_players != 0 and overall_min_players != 0):
+        update_or_create_statistic('All Servers', overall_min_players, overall_max_players)

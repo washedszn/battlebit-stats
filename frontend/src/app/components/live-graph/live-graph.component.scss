@@ -3,3 +3,28 @@ canvas {
   width: 100%;
   height: 100%;
 }
+
+.container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.time-range-option {
+  background: none;
+  border: none;
+  padding: 0 5px;
+  color: rgb(180, 180, 180);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+
+  &:focus {
+    outline: none;
+  }
+
+  &.selected {
+    color: rgb(255, 255, 255);
+    font-weight: 500;
+  }
+}
