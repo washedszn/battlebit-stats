@@ -3,7 +3,7 @@
     <div class="topbar-content" fxLayout="row" fxLayoutAlign="space-between center"
       *ngIf="(isSmallScreen$ | async); else bigScreen">
       <img routerLink="/servers" alt="BattleBit Stats Home Page" src="/assets/images/logo.png" />
-      <button mat-icon-button [matMenuTriggerFor]="menu">
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Main Menu">
         <mat-icon>menu</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
@@ -47,7 +47,7 @@
       </p>
       <div class="github">
         <a href="https://github.com/washedszn/battlebit-stats" target="_blank">
-          <img alt="Open Source GitHub Repository for BattleBit Stats" src="../assets/images/github-mark-white.svg" />
+          <img style="width: 18px; height: 18px;" alt="Open Source GitHub Repository for BattleBit Stats" src="../assets/images/github-mark-white.svg" />
           <a *ngIf="!(isSmallScreen$ | async)">Open Source</a>
         </a>
       </div>

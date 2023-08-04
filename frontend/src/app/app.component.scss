@@ -11,6 +11,7 @@
 
 a {
   font-family: Roboto;
+  font-display: swap;
   text-decoration: none;
   color: rgb(180, 180, 180);
   margin: 16px;
@@ -19,6 +20,7 @@ a {
 img {
   cursor: pointer;
   width: 42px;
+  height: 42px;
 }
 
 .overflow-fix {
@@ -62,6 +64,7 @@ img {
 
 .footer-content {
   font-family: Roboto;
+  font-display: swap;
   max-width: 1280px;
   width: 100%;
   margin: auto;

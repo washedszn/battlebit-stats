@@ -10,12 +10,21 @@ canvas {
 }
 
 .time-range-option {
-  cursor: pointer;
-  padding: 0 5px 0 5px;
+  background: none;
+  border: none;
+  padding: 0 5px;
   color: rgb(180, 180, 180);
-}
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
 
-.time-range-option.selected {
-  color: rgb(255, 255, 255);
-  font-weight: 500;
+  &:focus {
+    outline: none;
+  }
+
+  &.selected {
+    color: rgb(255, 255, 255);
+    font-weight: 500;
+  }
 }

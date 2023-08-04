@@ -49,6 +49,7 @@ export class LiveGraphComponent implements AfterViewInit, OnChanges {
           borderColor: 'rgb(75, 192, 192)',
           backgroundColor: 'rgba(75, 192, 192, 0.1)',
           borderCapStyle: 'round',
+          borderWidth: 2,
           tension: 0.2,
           stepped: false,
           borderDash: []

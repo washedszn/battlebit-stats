@@ -62,6 +62,10 @@ html, body {
 }
 body { 
     font-family: monospace; 
+    font-display: swap;
     color: $foreground-color; // Use the foreground color from the theme
 }
   
+p a {
+  font-display: swap;
+}

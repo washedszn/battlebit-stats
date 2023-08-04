@@ -10,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDividerModule } from '@angular/material/divider';
-import { CountUpModule } from 'ngx-countup';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -63,7 +62,6 @@ import { DatetimeRangePickerComponent } from './components/datetime-range-picker
     MatTooltipModule,
     MatIconModule,
     MatChipsModule,
-    CountUpModule,
     MatFormFieldModule,
     ReactiveFormsModule,
     FormsModule,

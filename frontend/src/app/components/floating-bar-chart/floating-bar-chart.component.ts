@@ -45,8 +45,12 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
           data: this.chartData.min_players.map((min, index) => {
             return [min, this.chartData.max_players[index]];
           }),
-          backgroundColor: 'rgb(75, 192, 192)',
           borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.1)',
+          borderWidth: 2,
+          borderRadius: 4,
+          borderSkipped: false,
+
         }]
       },
       options: {
