@@ -24,6 +24,7 @@ export class StatisticComponent implements OnInit {
   public currentTimes = Array();
   public chartData = Object();
   public latestData = Array();
+  public isLoading: boolean = true;
 
   wsSubscription: Subscription | undefined;
   intervalSubscription: Subscription | undefined;
@@ -41,8 +42,8 @@ export class StatisticComponent implements OnInit {
     this.wsSubscription = this.apiService.connect(`${environment.WS_URL}/ws/statistics/${this.statisticType}/`)
       .subscribe({
         next: (msgEvent: MessageEvent) => {
-          let newData = JSON.parse(msgEvent.data);
-
+          let newData = JSON.parse(msgEvent.data);          
+          this.isLoading = false;
           // Handle data going to the live-graph component
           if (!this.chartData[`${newData.name}`]) {
             // set initial data
@@ -87,8 +88,14 @@ export class StatisticComponent implements OnInit {
           // sort latest data of highest amount of total players
           this.latestData = this.latestData.sort((a: LatestData, b: LatestData) => b.total_players - a.total_players)
         },
-        error: err => console.error('ws error', err),
-        complete: () => console.log('ws connection closed')
+        error: err => {
+          console.error('ws error', err)
+          this.isLoading = false;
+        },
+        complete: () => {
+          console.log('ws connection closed')
+          this.isLoading = false;
+        }
       });
   }
 

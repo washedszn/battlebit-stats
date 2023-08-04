@@ -1,5 +1,9 @@
 <div class="statistic-container">
-  <div *ngIf="latestData.length > 0">
+  <div *ngIf="isLoading" class="spinner-container">
+    <mat-spinner></mat-spinner>
+  </div>
+  
+  <div *ngIf="latestData.length > 0 && !isLoading">
     <div class="flex-container">
       <mat-card class="first-card">
         <mat-card-title class="title">

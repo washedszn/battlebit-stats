@@ -19,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Components
 import { StatisticComponent } from './components/statistic/statistic.component';
@@ -34,6 +35,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServerStatisticComponent } from './components/server-statistic/server-statistic.component';
 import { FloatingBarChartComponent } from './components/floating-bar-chart/floating-bar-chart.component';
 import { DatetimeRangePickerComponent } from './components/datetime-range-picker/datetime-range-picker.component';
+import { NoDataComponent } from './components/no-data/no-data.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +50,7 @@ import { DatetimeRangePickerComponent } from './components/datetime-range-picker
     ServerStatisticComponent,
     FloatingBarChartComponent,
     DatetimeRangePickerComponent,
+    NoDataComponent,
   ],
   imports: [
     BrowserModule,
@@ -70,6 +73,7 @@ import { DatetimeRangePickerComponent } from './components/datetime-range-picker
     BrowserAnimationsModule,
     MatNativeDateModule,
     MatDatepickerModule,
+    MatProgressSpinnerModule
   ],
   bootstrap: [AppComponent]
 })

@@ -83,3 +83,14 @@ app-live-graph {
     margin-top: -10px;
     color: #8a8a8a;
 }
+
+.spinner-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* centers the element */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-datetime-range-picker',
@@ -7,15 +7,19 @@ import { FormGroup, FormControl } from '@angular/forms';
   styleUrls: ['./datetime-range-picker.component.scss']
 })
 export class DatetimeRangePickerComponent implements OnInit {
+  public minEndDate!: Date;
+  public maxEndDate!: Date;
 
   @Output() dateTimeSelected: EventEmitter<{ start: string, end: string }> = new EventEmitter<{ start: string, end: string }>();
 
-  range = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null),
-  });
-  maxEndDate!: Date;
-  minEndDate!: Date;
+  start = new FormControl<Date | null>(null);
+  end = new FormControl<Date | null>(null);
+
+  endDateFilter = (d: Date | null): boolean => {
+    const date = d || new Date();
+    // We allow the end date to be selected if it's within the min and max end dates.
+    return date >= this.minEndDate && date <= this.maxEndDate;
+  };
 
   constructor() { }
 
@@ -23,11 +27,22 @@ export class DatetimeRangePickerComponent implements OnInit {
     const now = new Date();
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
-  
-    this.range.setValue({ start: yesterday, end: now });
-  
-    this.range.get('start')?.valueChanges.subscribe(val => {      
+    this.start.setValue(yesterday);
+
+    // Set initial end date as tomorrow
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    this.end.setValue(tomorrow);
+
+    // Set initial min and max end dates
+    this.minEndDate = tomorrow;
+    const nextWeek = new Date(yesterday);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    this.maxEndDate = nextWeek;
+
+    this.start.valueChanges.subscribe(val => {      
       if (val) {
+        this.end.setValue(null); // clear end date when start date changes
         const maxEndDate = new Date(val);
         maxEndDate.setDate(maxEndDate.getDate() + 7);
         const minEndDate = new Date(val);
@@ -37,13 +52,17 @@ export class DatetimeRangePickerComponent implements OnInit {
         this.maxEndDate = maxEndDate;
       }
     });
+
+    this.end.valueChanges.subscribe(val => {
+      this.updateValue();
+    });
   }
 
-  updateValue() {
-    const start = this.range.get('start')?.value;
-    const end = this.range.get('end')?.value;
+  updateValue(): void {
+    const start = this.start.value;
+    const end = this.end.value;
     
-    if (start && end) {      
+    if (start && end) {
       const startUTC = this.formatDatetime(start);
       const endUTC = this.formatDatetime(end);
 

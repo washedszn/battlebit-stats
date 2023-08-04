@@ -37,7 +37,7 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
     this.chart = new Chart(this.chartCanvas.nativeElement, {
       type: 'bar',
       data: {
-        labels: this.chartData.timestamps.map(e => {          
+        labels: this.chartData.timestamps.map(e => {                    
           return new Date(e)
         }),
         datasets: [{
@@ -54,6 +54,7 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
         }]
       },
       options: {
+        animation: false,
         indexAxis: 'x',
         plugins: {
           legend: {

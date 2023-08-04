@@ -20,7 +20,7 @@
     }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 870px) {
     .form-content p {
       display: none;
     }
@@ -75,3 +75,11 @@ mat-card-content {
         height: 400px; // Adjust this to change the height of the chart
     }
 }
+
+.spinner-container {
+    margin-top: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

@@ -20,7 +20,7 @@ class PlayerStatisticsView(View):
             end_datetime = timezone.now().replace(minute=0, second=0, microsecond=0)
 
         # Check if end_datetime exceeds start_datetime by 7 days
-        if end_datetime - start_datetime > timedelta(days=7):
+        if end_datetime - start_datetime > timedelta(days=8):
             return HttpResponseBadRequest("Range cannot be larger than 7 days")
 
         if region:

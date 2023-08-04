@@ -1,9 +1,14 @@
-<mat-form-field>
-    <mat-label>Enter a date range</mat-label>
-    <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-      <input matStartDate formControlName="start" placeholder="Start date" (dateChange)="updateValue()">
-      <input matEndDate formControlName="end" [min]="minEndDate" [max]="maxEndDate" placeholder="End date" (dateChange)="updateValue()">
-    </mat-date-range-input>
-    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-date-range-picker #picker></mat-date-range-picker>
+<mat-form-field class="example-full-width start">
+  <mat-label>Start date</mat-label>
+  <input matInput [matDatepicker]="startPicker" [formControl]="start" (dateChange)="updateValue()">
+  <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+  <mat-datepicker #startPicker></mat-datepicker>
+</mat-form-field>
+
+<mat-form-field class="example-full-width start">
+  <mat-label>End date</mat-label>
+  <input matInput [matDatepickerFilter]="endDateFilter" [matDatepicker]="endPicker" [formControl]="end"
+    (dateChange)="updateValue()">
+  <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+  <mat-datepicker #endPicker></mat-datepicker>
 </mat-form-field>
