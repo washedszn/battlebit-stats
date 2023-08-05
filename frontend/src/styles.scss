@@ -1,3 +1,4 @@
+@use '@angular/material' as mat;
 @import '@angular/material/theming';
 @include mat-core();
 
@@ -38,8 +39,13 @@ $primary: mat-palette($custom-blue-green);
 $accent: mat-palette($mat-light-green, A200, A100, A400); // lighter green
 $warn: mat-palette($mat-red, 900); // dark red
 
-$theme: mat-dark-theme($primary, $accent, $warn);
-
+$theme: mat.define-dark-theme((
+ color: (
+   primary: $primary,
+   accent: $accent,
+   warn: $warn,
+ )
+));
 @include angular-material-theme($theme);
 
 // Extract the colors
