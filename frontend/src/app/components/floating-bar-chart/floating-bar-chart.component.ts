@@ -66,7 +66,7 @@ export class FloatingBarChartComponent implements AfterViewInit, OnChanges {
                 const index = context[0]?.dataIndex;
                 const labels = context[0]?.chart?.data?.labels;
                 
-                return `At ${labels?.[index]}, the player peaks were:`;
+                return `At ${labels?.[index]?.toLocaleString()}, the player peaks were:`;
               },
               label: function (context) {
                 const dataset = context.dataset;
