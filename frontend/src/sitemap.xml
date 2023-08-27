@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://battlebitstats.xyz/servers</loc>
+        <lastmod>2023-08-05T18:33:37+00:00</lastmod>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://battlebitstats.xyz/game-modes</loc>
+        <lastmod>2023-08-05T18:33:37+00:00</lastmod>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://battlebitstats.xyz/map-sizes</loc>
+        <lastmod>2023-08-05T18:33:37+00:00</lastmod>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://battlebitstats.xyz/maps</loc>
+        <lastmod>2023-08-05T18:33:37+00:00</lastmod>
+        <changefreq>always</changefreq>
+    </url>
+    <url>
+        <loc>https://battlebitstats.xyz/regions</loc>
+        <lastmod>2023-08-05T18:33:37+00:00</lastmod>
+        <changefreq>always</changefreq>
+    </url>
+</urlset>
