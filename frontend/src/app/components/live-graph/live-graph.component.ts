@@ -15,7 +15,7 @@ export class LiveGraphComponent implements AfterViewInit, OnChanges {
   @Input() public chartData = Array<ChartData>();
   public chart!: Chart;
 
-  public timeRange: number = 60 * 10 * 1000; // Default to 10 minutes
+  public timeRange: number = 60 * 30 * 1000; // Default to 30 minutes
 
   constructor() { }
 
